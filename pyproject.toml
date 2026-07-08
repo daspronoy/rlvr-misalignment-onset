@@ -1,0 +1,36 @@
+[project]
+name = "rlvr-misalignment-onset"
+version = "0.1.0"
+description = "When do misalignment-related side effects of RLVR emerge during training? Behavioral + probe trajectories over Olmo-3 intermediate checkpoints."
+requires-python = ">=3.12"
+dependencies = [
+    # Phase 0: checkpoint inventory (metadata API only)
+    "huggingface_hub>=0.26",
+    # Phase 1+: model loading and eval harness
+    "torch>=2.5",
+    "transformers>=4.57",       # Olmo 3 support requires >=4.57.0
+    "accelerate>=1.0",
+    "datasets>=3.0",
+    "safetensors>=0.4",
+    # Probes and analysis
+    "numpy>=1.26",
+    "scikit-learn>=1.5",
+    "scipy>=1.13",
+    "pandas>=2.2",
+    "matplotlib>=3.9",
+    # Quantized inference on 16GB VRAM
+    "bitsandbytes>=0.44",
+    # Misc
+    "tqdm>=4.66",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29",
+    "pytest>=8.0",
+]
+
+[tool.uv]
+# No build needed — this is a scripts/experiments repo, not an installable package.
+package = false
