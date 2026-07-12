@@ -1,7 +1,7 @@
 """
 Phase 0: Checkpoint inventory for Olmo-3 RLVR runs.
 Requires: pip install huggingface_hub
-No GPU / no downloads — metadata API calls only.
+Metadata API calls only, nothing more
 """
 
 import re

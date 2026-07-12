@@ -1,6 +1,6 @@
 # Phase 0 — Checkpoint inventory results (2026-07-08)
 
-Run: `.venv/bin/python checkpoint_inventory.py` (HF metadata API only, no downloads)
+Run: `python checkpoint_inventory.py` (HF metadata API only, no downloads)
 
 ## GO/NO-GO summary
 
@@ -32,3 +32,10 @@ Run: `.venv/bin/python checkpoint_inventory.py` (HF metadata API only, no downlo
 - Think-DPO has no intermediate revisions — only `main` — which is fine since it's only needed as the RLVR-start anchor.
 - RL-Zero-Mix (the closest to "open-ended RLVR") has 19 checkpoints at 50-step spacing — dense enough for lead-lag analysis.
 - Olmo-3.1 refresh runs are longer/denser (Math 28, Code 33) — candidates if longer training horizons matter.
+
+
+
+
+## Output
+
+- Start with Olmo-3-RL-Zero-Math (19 checkpoints). It is cheap enough for prototyping purposes.
