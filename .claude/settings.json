@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.alignmentforum.org)",
+      "WebFetch(domain:api.github.com)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
