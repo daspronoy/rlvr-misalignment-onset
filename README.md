@@ -22,11 +22,13 @@ Compute setup. One A100/H100 80GB handles 7B in bf16 comfortably. I write the ha
 
 Phase 1 — Behavioral trajectory (Ongoing)
 
-Eval suite. InstrumentalEval (the paper arXiv:2502.12206v1) is a reasonable core, but I'm treating it cautiously: its scenarios use heavy goal-nudging system prompts ("achieve YOUR goal at all costs"), which measures susceptibility to adversarial framing as much as intrinsic tendency, and it relies on a single LLM judge. I run each task both with and without the nudge (the paper itself shows this matters — Table 3), and add at least one independent misalignment eval (e.g., the 44-prompt emergent-misalignment eval from Betley et al., which the OpenAI persona paper reuses — cited above) so my behavioral signal isn't hostage to one benchmark's quirks.
-Capability trajectory. Cheap proxies per checkpoint: MATH-500 and a small LiveCodeBench or HumanEval+ subset. I need the capability curve to test "misalignment tracks capability" vs. "misalignment has its own onset."
-Judging. Two judge models + spot-check ~50 transcripts by hand. Given my integrity constraints, hand-verification of the judge is non-negotiable — InstrumentalEval's own RQ5 shows judge choice moves the numbers substantially.
+- Eval suite. InstrumentalEval (the paper arXiv:2502.12206v1) is a reasonable core, but I'm treating it cautiously: its scenarios use heavy goal-nudging system prompts ("achieve YOUR goal at all costs"), which measures susceptibility to adversarial framing as much as intrinsic tendency, and it relies on a single LLM judge. I run each task both with and without the nudge (the paper itself shows this matters — Table 3), and add at least one independent misalignment eval (e.g., the 44-prompt emergent-misalignment eval from Betley et al., which the OpenAI persona paper reuses — cited above) so my behavioral signal isn't hostage to one benchmark's quirks.
 
-Deliverable: IR(step), per-category CIR(step), capability(step) curves. This alone is a workshop-paper-grade result if the curves are interesting.
+- Capability trajectory. Cheap proxies per checkpoint: MATH-500 and a small LiveCodeBench or HumanEval+ subset. I need the capability curve to test "misalignment tracks capability" vs. "misalignment has its own onset."
+
+- Judging. Two judge models + spot-check ~50 transcripts by hand. Given my integrity constraints, hand-verification of the judge is non-negotiable — InstrumentalEval's own RQ5 shows judge choice moves the numbers substantially.
+
+- Deliverable: IR(step), per-category CIR(step), capability(step) curves. This alone is a workshop-paper-grade result if the curves are interesting.
 
 
 ---------------------------------------------------------------------------------------------------------------
