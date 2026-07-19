@@ -10,7 +10,7 @@ import argparse
 import csv
 import re
 
-from common import RUNS, SCORES, TRANSCRIPTS, read_jsonl, revision_name
+from common import RUNS, read_jsonl, revision_name, scores_dir, transcripts_dir
 
 _BOXED = re.compile(r"\\boxed\{")
 _ANSWER = re.compile(r"Answer:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
@@ -98,7 +98,7 @@ def is_correct(pred: str, gold: str) -> bool:
 
 
 def score(tag: str, rev: str):
-    path = TRANSCRIPTS / tag / rev / "math.jsonl"
+    path = transcripts_dir(tag) / rev / "math.jsonl"
     if not path.exists():
         return None
     rows = read_jsonl(path)
@@ -137,7 +137,8 @@ def main():
         print(f"{run.tag}@{rev}: MATH-500 acc={res['accuracy']:.3f} ({res['correct']}/{res['n']})  [{lv}]")
 
     if out_rows:
-        out = SCORES / f"capability_{run.tag}.csv"
+        out = scores_dir(run.tag) / f"capability_{run.tag}.csv"
+        out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", newline="") as f:
             w = csv.writer(f)
             w.writerow(["tag", "revision", "n", "correct", "accuracy"])

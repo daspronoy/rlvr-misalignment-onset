@@ -2,12 +2,12 @@
 evals, cache transcripts (and optionally decision-point activations), free VRAM.
 
 Usage:
-  python src/generate.py --run rlzero_math --step 100 --evals ie,em,math \
+  python phase1/generate.py --run rlzero_math --step 100 --evals ie,em,math \
       --precision bf16 [--activations] [--limit N]
 
 Writes:
-  results/transcripts/<tag>/<revision>/<eval>.jsonl
-  results/activations/<tag>/<revision>/ie_<framing>.npz   (if --activations)
+  <family> results/transcripts/<tag>/<revision>/<eval>.jsonl
+  <family> results/activations/<tag>/<revision>/ie_<framing>.npz   (if --activations)
 """
 from __future__ import annotations
 
@@ -18,17 +18,17 @@ import numpy as np
 import torch
 
 from common import (
-    ACTIVATIONS,
     RUNS,
-    TRANSCRIPTS,
     LoadedModel,
     SYSTEM_NEUTRAL,
     SYSTEM_NUDGE,
+    activations_dir,
     format_prompt,
     free_model,
     load_model,
     read_jsonl,
     revision_name,
+    transcripts_dir,
     write_jsonl,
     PROCESSED,
 )
@@ -115,7 +115,7 @@ def run_ie(lm, tag, rev, limit, do_activations, batch_size):
     resp = generate_batch(lm, prompts, max_new(RUN.family, "ie"), do_sample=False, temperature=None, batch_size=batch_size)
     for r, x in zip(rows, resp):
         r["response"] = x
-    out = TRANSCRIPTS / tag / rev / "ie.jsonl"
+    out = transcripts_dir(tag) / rev / "ie.jsonl"
     write_jsonl(out, rows)
     print(f"  ie: {len(rows)} generations ({len(tasks)} tasks x 2 framings) in {time.time()-t0:.0f}s -> {out}")
 
@@ -123,11 +123,11 @@ def run_ie(lm, tag, rev, limit, do_activations, batch_size):
         for framing in IE_FRAMINGS:
             sub = [r for r in rows if r["framing"] == framing]
             acts = capture_activations(lm, [r["prompt"] for r in sub])
-            ap = ACTIVATIONS / tag / rev / f"ie_{framing}.npz"
+            ap = activations_dir(tag) / rev / f"ie_{framing}.npz"
             ap.parent.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(ap, acts=acts, ids=np.array([r["id"] for r in sub]),
                                 categories=np.array([r["category"] for r in sub]))
-        print(f"  ie: cached activations [{acts.shape}] -> {ACTIVATIONS / tag / rev}")
+        print(f"  ie: cached activations [{acts.shape}] -> {activations_dir(tag) / rev}")
 
 
 def run_em(lm, tag, rev, limit, batch_size):
@@ -147,7 +147,7 @@ def run_em(lm, tag, rev, limit, batch_size):
     resp = generate_batch(lm, prompts, max_new(RUN.family, "em"), do_sample=True, temperature=1.0, batch_size=batch_size)
     for r, x in zip(rows, resp):
         r["response"] = x
-    out = TRANSCRIPTS / tag / rev / "em.jsonl"
+    out = transcripts_dir(tag) / rev / "em.jsonl"
     write_jsonl(out, rows)
     print(f"  em: {len(rows)} generations ({len(qs)} q x samples) in {time.time()-t0:.0f}s -> {out}")
 
@@ -166,7 +166,7 @@ def run_math(lm, tag, rev, limit, batch_size):
     resp = generate_batch(lm, prompts, max_new(RUN.family, "math"), do_sample=False, temperature=None, batch_size=batch_size)
     for r, x in zip(rows, resp):
         r["response"] = x
-    out = TRANSCRIPTS / tag / rev / "math.jsonl"
+    out = transcripts_dir(tag) / rev / "math.jsonl"
     write_jsonl(out, rows)
     print(f"  math: {len(rows)} generations in {time.time()-t0:.0f}s -> {out}")
 

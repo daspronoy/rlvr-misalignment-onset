@@ -3,7 +3,7 @@ knowledge
 graphify-out
 data
 __pycache__
-results
+* results/
 SCOPE.md
 API.md
 .claude

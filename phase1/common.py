@@ -22,17 +22,10 @@ import torch
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 PROCESSED = DATA / "processed"
-RESULTS = ROOT / "results"
-TRANSCRIPTS = RESULTS / "transcripts"
-ACTIVATIONS = RESULTS / "activations"
-SCORES = RESULTS / "scores"
-FIGURES = RESULTS / "figures"
-for _p in (PROCESSED, TRANSCRIPTS, ACTIVATIONS, SCORES, FIGURES):
-    _p.mkdir(parents=True, exist_ok=True)
 
 
 # --------------------------------------------------------------------------- #
-# Checkpoint inventory (from phase0_inventory.md). family drives prompt format.
+# Checkpoint inventory (from phase0/README.md). family drives prompt format.
 # --------------------------------------------------------------------------- #
 @dataclass(frozen=True)
 class RunSpec:
@@ -71,6 +64,35 @@ RUNS = {
 
 def revision_name(step) -> str:
     return step if isinstance(step, str) else f"step_{step}"
+
+
+# --------------------------------------------------------------------------- #
+# Results layout: one top-level directory per model family ("RL-zero results",
+# "Think results"). The base anchor lives with the RL-Zero runs it anchors.
+# --------------------------------------------------------------------------- #
+def results_root(tag: str) -> Path:
+    name = "Think" if RUNS[tag].family == "think" else "RL-zero"
+    return ROOT / f"{name} results"
+
+
+def transcripts_dir(tag: str) -> Path:
+    return results_root(tag) / "transcripts" / tag
+
+
+def activations_dir(tag: str) -> Path:
+    return results_root(tag) / "activations" / tag
+
+
+def scores_dir(tag: str) -> Path:
+    return results_root(tag) / "scores"
+
+
+def judgments_dir(tag: str) -> Path:
+    return scores_dir(tag) / "judgments" / tag
+
+
+def figures_dir(tag: str) -> Path:
+    return results_root(tag) / "figures"
 
 
 # --------------------------------------------------------------------------- #

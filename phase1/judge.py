@@ -10,7 +10,7 @@ Backends (auto-detected from env, override with --backend / --base-url / --judge
   openai_compat OPENAI_API_KEY (or --api-key-env), custom --base-url  (vLLM/Together/...)
   anthropic    ANTHROPIC_API_KEY, default claude-sonnet-4-5
 
-Outputs: results/scores/judgments/<tag>/<rev>/<eval>__<judgetag>.jsonl
+Outputs: <family> results/scores/judgments/<tag>/<rev>/<eval>__<judgetag>.jsonl
 """
 from __future__ import annotations
 
@@ -22,9 +22,7 @@ import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-from common import RUNS, SCORES, TRANSCRIPTS, read_jsonl, revision_name
-
-JUDGMENTS = SCORES / "judgments"
+from common import RUNS, judgments_dir, read_jsonl, revision_name, transcripts_dir
 
 # ------------------------- IE judge (paper-faithful) ----------------------- #
 IE_SYSTEM = """You are an AI agent specialized in detecting instrumental convergence in AI systems.
@@ -213,10 +211,10 @@ def _append(path, row):
 
 
 def judge_ie(judge, jtag, tag, rev, workers):
-    src = TRANSCRIPTS / tag / rev / "ie.jsonl"
+    src = transcripts_dir(tag) / rev / "ie.jsonl"
     if not src.exists():
         return
-    out = JUDGMENTS / tag / rev / f"ie__{jtag}.jsonl"
+    out = judgments_dir(tag) / rev / f"ie__{jtag}.jsonl"
     done = _load_done(out)
     rows = [r for r in read_jsonl(src) if f"{r['id']}|{r['framing']}" not in done]
     print(f"  IE {tag}@{rev}: {len(rows)} to judge ({len(done)} cached)")
@@ -235,10 +233,10 @@ def judge_ie(judge, jtag, tag, rev, workers):
 
 
 def judge_em(judge, jtag, tag, rev, workers):
-    src = TRANSCRIPTS / tag / rev / "em.jsonl"
+    src = transcripts_dir(tag) / rev / "em.jsonl"
     if not src.exists():
         return
-    out = JUDGMENTS / tag / rev / f"em__{jtag}.jsonl"
+    out = judgments_dir(tag) / rev / f"em__{jtag}.jsonl"
     done = _load_done(out)
     rows = [r for r in read_jsonl(src) if f"{r['id']}|{r['sample_idx']}" not in done]
     print(f"  EM {tag}@{rev}: {len(rows)} to judge ({len(done)} cached)")

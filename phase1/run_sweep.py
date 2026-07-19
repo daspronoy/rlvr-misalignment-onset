@@ -5,7 +5,7 @@ score capability. Resumable: skips a checkpoint whose transcripts already exist.
 Continues past per-checkpoint failures and reports them at the end.
 
 Usage:
-  python src/run_sweep.py --run rlzero_math --precision 8bit --activations --include-base
+  python phase1/run_sweep.py --run rlzero_math --precision 8bit --activations --include-base
 """
 from __future__ import annotations
 
@@ -16,13 +16,14 @@ import sys
 import time
 from pathlib import Path
 
-from common import RUNS, TRANSCRIPTS, revision_name
+from common import RUNS, revision_name, transcripts_dir
 
+HERE = Path(__file__).resolve().parent
 ALLOW = ["*.safetensors", "*.json", "*.txt", "*.jinja", "tokenizer*", "merges*", "vocab*", "special_tokens*"]
 
 
 def have_transcripts(tag, rev, evals):
-    return all((TRANSCRIPTS / tag / rev / f"{e}.jsonl").exists() for e in evals)
+    return all((transcripts_dir(tag) / rev / f"{e}.jsonl").exists() for e in evals)
 
 
 def download(repo, rev):
@@ -79,14 +80,14 @@ def main():
             download(repo, rev)
             # generate.py keys off --run for the repo; base needs its own run key.
             run_key = "base" if tag == "base" else args.run
-            cmd = [sys.executable, "src/generate.py", "--run", run_key,
+            cmd = [sys.executable, str(HERE / "generate.py"), "--run", run_key,
                    "--step", "main" if rev == "main" else rev.split("_")[-1],
                    "--evals", args.evals, "--precision", args.precision,
                    "--batch-size", str(args.batch_size)]
             if args.activations:
                 cmd.append("--activations")
             subprocess.run(cmd, check=True)
-            subprocess.run([sys.executable, "src/score_capability.py", "--run", run_key,
+            subprocess.run([sys.executable, str(HERE / "score_capability.py"), "--run", run_key,
                             "--step", rev], check=False)
             if args.delete_weights:
                 purge(repo, rev)
