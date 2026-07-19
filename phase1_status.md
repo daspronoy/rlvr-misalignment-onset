@@ -59,11 +59,15 @@ Harness decisions that follow:
   want a dedicated **bf16** activation pass for probe fidelity.
 
 ## Status
+> Plain-language resume guide: see [START_HERE.md](START_HERE.md).
+
 - [x] Datasets built, harness written, smoke-tested end-to-end on step_100.
-- [~] **Generation sweep running in background** (`results/sweep.log`, ~5 h): base + 10 ckpts,
-  all evals + activations. Resumable; skips completed checkpoints.
-- [ ] **Capability curve** — auto-scored during the sweep; `aggregate.py` plots it (judge-free).
-- [ ] **IR / EM curves** — BLOCKED on a judge model (see below).
+- [x] **Generation sweep COMPLETE** (`results/sweep.log`, `failures=0`): base + 10 ckpts,
+  all evals + activations cached. Transcripts verified complete (math=100, ie=152, em=160 per ckpt).
+- [~] **Capability curve** — scorer works, but the CSV only holds one checkpoint at a time.
+  Re-run `python src/score_capability.py --run rlzero_math` (no `--step`) to rebuild all 11 rows
+  from the cached transcripts (no GPU, no judge).
+- [ ] **IR / EM curves** — BLOCKED on a judge model / API key (see below). Transcripts cached, ready.
 
 ## Judge decision needed (only blocker for the headline IR/EM curves)
 No API key is set in this environment. `judge.py` supports, auto-detected from env:

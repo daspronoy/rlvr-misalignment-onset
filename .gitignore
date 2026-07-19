@@ -5,3 +5,6 @@ data
 __pycache__
 results
 SCOPE.md
+API.md
+.claude
+.venv
