@@ -71,7 +71,10 @@ def generate_batch(lm: LoadedModel, prompts, max_new_tokens, do_sample, temperat
             new = gen[:, enc["input_ids"].shape[1] :]
             out.extend(tok.batch_decode(new, skip_special_tokens=True))
             i += bs
-        except torch.cuda.OutOfMemoryError:
+        except (torch.cuda.OutOfMemoryError, RuntimeError) as e:
+            # MPS (Mac) reports OOM as a plain RuntimeError.
+            if "out of memory" not in str(e).lower():
+                raise
             torch.cuda.empty_cache()
             if bs == 1:
                 raise

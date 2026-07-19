@@ -101,6 +101,8 @@ Expect the behavioral signal on RL-Zero to be weak and noisy, and treat coherenc
 
 Compute: the sweep ran on one RTX 5070 Ti (16 GB, sm_120), torch 2.12+cu130, transformers 5.13. 8-bit quantization is what fits with batching headroom (8.1 GB); bf16 holds the weights but OOMs on long batched generation. Activations are cached from the 8-bit model; Phase 2 may want a dedicated bf16 pass for probe fidelity.
 
+On a Mac there is no CUDA, so bitsandbytes is skipped at install time and `load_model` ignores any requested quantized precision, loading bf16 on MPS (or CPU) instead. A 7B in bf16 needs roughly 15 GB of unified memory, so a 32 GB Apple-silicon machine handles generation; the OOM batch-halving also understands MPS. Everything downstream of generation (`score_capability.py`, `judge.py`, `aggregate.py`) is plain CPU and runs on any machine.
+
 ## Status
 
 - Done: datasets, full generation sweep (base + 10 checkpoints, `failures=0`, transcripts complete at math=100, ie=152, em=160 rows per checkpoint), activations cached, capability scored, both judges (GLM-5.2, MiMo-v2.5) run over all 11 checkpoints, aggregation and figure.

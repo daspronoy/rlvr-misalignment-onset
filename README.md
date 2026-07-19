@@ -29,7 +29,7 @@ Ordered by how much of the project rides on them. The literature audit behind ea
 
 ## Reproducing the pipeline
 
-Environment: `uv sync` (Python 3.12+). The GPU steps ran on a single 16 GB RTX 5070 Ti at 8-bit precision; everything else runs on a laptop.
+Environment: `uv sync` (Python 3.12+). The GPU steps ran on a single 16 GB RTX 5070 Ti at 8-bit precision. On a Mac the same commands work: quantization needs CUDA, so the loader falls back to bf16 on Apple silicon (MPS), and the scoring, judging, and aggregation steps run anywhere.
 
 ```bash
 python phase0/checkpoint_inventory.py            # go/no-go on checkpoint density (metadata only)

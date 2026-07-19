@@ -179,12 +179,20 @@ def load_model(repo: str, revision: str, precision: str = "bf16") -> LoadedModel
     tok.padding_side = "left"  # decoder-only batched generation
 
     order = {"bf16": ["bf16", "8bit", "4bit"], "8bit": ["8bit", "4bit"], "4bit": ["4bit"]}[precision]
+    if torch.cuda.is_available():
+        device = 0
+    else:
+        # bitsandbytes quantization needs CUDA; on Mac (MPS) or CPU, bf16 only.
+        device = "mps" if torch.backends.mps.is_available() else "cpu"
+        if precision != "bf16":
+            print(f"[load] no CUDA -> ignoring precision={precision}, using bf16 on {device}")
+        order = ["bf16"]
     last_err = None
     for prec in order:
         try:
             kwargs = dict(revision=revision, low_cpu_mem_usage=True)
             if prec == "bf16":
-                kwargs.update(dtype=torch.bfloat16, device_map={"": 0})
+                kwargs.update(dtype=torch.bfloat16, device_map={"": device})
             else:
                 from transformers import BitsAndBytesConfig
 
