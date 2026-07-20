@@ -23,7 +23,7 @@ Ordered by how much of the project rides on them. The literature audit behind ea
 | Phase | What it does | Where | Status |
 |---|---|---|---|
 | 0 | Verify the checkpoint inventory is dense enough to date an onset | [phase0/](phase0/) | Done, verdict GO |
-| 1 | Behavioral + capability curves over all checkpoints | [phase1/](phase1/) | Generation, judging, and scoring done |
+| 1 | Behavioral + capability curves over all checkpoints | [phase1/](phase1/) | Generation, judging, and scoring |
 | 2 | Linear probes on the cached activations, the internal curve | not yet written | Not started |
 | 3 | Lead-lag analysis of the three curves, writeup | not yet written | Not started |
 

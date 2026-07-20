@@ -23,6 +23,7 @@ dependencies = [
     # Misc
     "tqdm>=4.66",
     "pyyaml>=6.0",
+    "vllm>=0.10",
 ]
 
 [dependency-groups]

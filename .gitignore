@@ -8,3 +8,5 @@ SCOPE.md
 API.md
 .claude
 .venv
+# Local HF cache (models/datasets) — never commit
+model_cache/
