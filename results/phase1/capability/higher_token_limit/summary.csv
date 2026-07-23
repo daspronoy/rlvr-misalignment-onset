@@ -1,0 +1,5 @@
+revision,n_truncated,correct,accuracy
+step_0100,139,13,0.0935
+step_0400,126,15,0.119
+step_0700,105,14,0.1333
+step_1000,95,13,0.1368

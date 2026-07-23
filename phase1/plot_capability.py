@@ -1,10 +1,9 @@
 """Publication figure for the MATH-500 capability sweep.
 
 Reads results/phase1/capability/{summary.csv, *.jsonl} and plots the RLVR
-capability curve alongside the token-cap confound: responses that never emit
+raw accuracy curve alongside the token-cap confound: responses that never emit
 "Answer:"/\\boxed are truncated ramblers (hit the 16384-token cap) and are
-always scored incorrect. "Attempted accuracy" = correct / (n - truncated)
-removes that confound.
+always scored incorrect.
 
   python phase1/plot_capability.py            # -> results/phase1/capability/capability.pdf + .png
 """
@@ -33,8 +32,6 @@ def load() -> pd.DataFrame:
         trunc[rev] = sum(not has_answer(r["response"]) for r in rows)
     summary["truncated"] = summary["revision"].map(trunc)
     summary["trunc_rate"] = summary["truncated"] / summary["n"]
-    attempted = summary["n"] - summary["truncated"]
-    summary["attempted_acc"] = summary["correct"] / attempted
     # x position: step number; 'main' plotted as the final checkpoint
     steps = [int(r.split("_")[1]) if r.startswith("step_") else None
              for r in summary["revision"]]
@@ -59,7 +56,7 @@ def style() -> None:
 
 
 # consistent, colorblind-safe palette
-C_RAW, C_ATT, C_TRUNC = "#1b6ca8", "#e07b39", "#9aa0a6"
+C_RAW, C_TRUNC = "#1b6ca8", "#9aa0a6"
 
 
 def plot(df: pd.DataFrame) -> None:
@@ -71,11 +68,9 @@ def plot(df: pd.DataFrame) -> None:
     x = df["x"]
     is_main = df["revision"] == "main"
 
-    # --- top: accuracy curves ---
+    # --- top: accuracy curve ---
     ax.plot(x, df["accuracy"], "-o", color=C_RAW, lw=1.8, ms=5,
             label="Raw accuracy (correct / 500)")
-    ax.plot(x, df["attempted_acc"], "--s", color=C_ATT, lw=1.8, ms=4.5,
-            mfc="white", label="Attempted accuracy (excl. truncated)")
     # mark the shipped 'main' checkpoint
     ax.scatter(x[is_main], df["accuracy"][is_main], s=120, facecolors="none",
                edgecolors="black", lw=1.2, zorder=5)
@@ -104,5 +99,5 @@ def plot(df: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     df = load()
-    print(df[["revision", "accuracy", "attempted_acc", "trunc_rate"]].to_string(index=False))
+    print(df[["revision", "accuracy", "trunc_rate"]].to_string(index=False))
     plot(df)
