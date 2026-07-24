@@ -29,20 +29,19 @@ Ordered by how much of the project rides on them. The literature audit behind ea
 
 ## Reproducing the pipeline
 
-Environment: `uv sync` (Python 3.12+). The GPU steps ran on a single 16 GB RTX 5070 Ti at 8-bit precision. On a Mac the same commands work: quantization needs CUDA, so the loader falls back to bf16 on Apple silicon (MPS), and the scoring, judging, and aggregation steps run anywhere.
+Environment: `uv sync` (Python 3.12+). The GPU steps ran on a single 16 GB RTX 5070 Ti with vLLM at fp8 precision.
 
 ```bash
-python phase0/checkpoint_inventory.py            # go/no-go on checkpoint density (metadata only)
+python phase0/checkpoint_inventory.py    # go/no-go on checkpoint density (metadata only)
 
-python phase1/build_datasets.py                  # normalize the eval suites -> data/processed/
-python phase1/run_sweep.py --run rlzero_math \
-    --precision 8bit --activations --include-base    # the GPU sweep: transcripts + activations
-python phase1/score_capability.py --run rlzero_math  # MATH-500 accuracy per checkpoint, no API key
-python phase1/judge.py --run rlzero_math ...         # LLM-judged misalignment scores, needs an API key
-python phase1/aggregate.py --run rlzero_math         # summary CSV + the curves figure
+python phase1/download_model.py          # cache every step_* revision locally
+python phase1/eval_capability.py         # 16k-cap MATH-500 sweep, judge-free scoring
+python phase1/higher_token_limit.py      # re-run truncated problems at a 30k cap
+python phase1/plot_capability.py         # raw / combined / projected curves + truncation panel
+python phase1/plot_efficiency.py         # tokens-per-correct figure
 ```
 
-Every step is resumable and skips work already on disk. [phase1/README.md](phase1/README.md) explains each command, the judge configuration, and which measurement each script produces.
+Every step is resumable and skips work already on disk. The Claude Sonnet 5 verdicts on still-truncated chains of thought that `plot_capability.py` consumes live in `results/phase1/capability/higher_token_limit/capability_judge.csv`.
 
 ## Where results live
 
@@ -50,14 +49,23 @@ The capability sweep writes under `results/phase1/capability/`:
 
 ```
 results/phase1/capability/
-  <revision>.jsonl    transcript + extracted answer + per-problem correctness
-  summary.csv         accuracy per checkpoint
-  capability.png/pdf  the plotted curve
+  <revision>.jsonl        transcript + extracted answer + per-problem correctness (16k cap)
+  summary.csv             accuracy per checkpoint
+  capability.png/pdf      raw / combined / projected curves + truncation panel
+  efficiency.png/pdf      mean tokens per correct answer
+  higher_token_limit/
+    <revision>.jsonl      30k-cap re-runs of the truncated problems
+    summary.csv           rescue rate per checkpoint
+    capability_judge.csv  Sonnet 5 verdicts on still-truncated chains of thought
 ```
 
 ## Results so far
 
-The behavioral evals are not part of the current pipeline. The null reported here predates the codebase overhaul: it was measured on the earlier Olmo-3-7B release and has not been rerun on 3.1 or migrated into `results/phase1/`. As it stood then, nothing planted and nothing drifted. Across 1900 RLVR steps the instrumental convergence rate stayed between 0.29 and 0.40 under the goal-nudging framing and between 0.33 and 0.39 under the neutral framing, with no trend in either. The emergent-misalignment rate stayed between 3.5% and 6.9%, also flat. Two judges from different model families (GLM-5.2 and MiMo-v2.5) agreed on the shape.
+The behavioral evals are not part of the current pipeline. The null reported here predates the codebase overhaul: it was measured on the earlier Olmo-3-7B release and has not been rerun on 3.1 or migrated into `results/phase1/`. As it stood then, nothing planted and nothing drifted. Across 1900 RLVR steps the instrumental convergence rate stayed between 0.29 and 0.40 under the goal-nudging framing and between 0.33 and 0.39 under the neutral framing, with no trend in either. The emergent-misalignment rate stayed between 3.5% and 6.9%, also flat.
 
-The MATH-500 curve is now the higher-cap rerun that the truncated version called for, generated at a 16384-token cap. Raw accuracy climbs from 0.63 at step 100 to a 0.77 peak near step 2200, then settles at 0.72 for the shipped model. But the rise is an artifact of answer formatting. Scoring marks any response that never emits an `Answer:` or `\boxed{}` as wrong, and every one of those is a response that ran into the token cap mid-thought without committing an answer, the RL-Zero rambling pattern. Set them aside and accuracy on the problems the model actually finishes holds flat between 0.87 and 0.89 across the whole run. What training moves is the truncation rate: 28% of responses run off the end at step 100, down to 14% by step 2200. RLVR is teaching the model to stop rambling and write the answer down, not to solve more of what it attempts. Numbers in `results/phase1/capability/summary.csv`, figure at `results/phase1/capability/capability.png`.
+The MATH-500 curve was generated at a 16384-token cap. Raw accuracy climbs from 0.63 at step 100 to a 0.77 peak near step 2200, then settles at 0.72 for the shipped model. But most of the rise is an artifact of answer formatting. Scoring marks any response that never emits an `Answer:` or `\boxed{}` as wrong, and every one of those is a response that ran into the token cap mid-thought without committing an answer, the RL-Zero rambling pattern. Accuracy on the problems the model actually finishes holds flat between 0.87 and 0.89 across the whole run; what training moves is the truncation rate, from 28% at step 100 down to 14% by step 2200.
+
+Two follow-ups pin this down. First, every truncated problem was re-run at a 30000-token cap; the rescued corrects lift the combined accuracy to 0.66 at step 100 and 0.79 at step 2200 (0.77 for `main`), a shallower but still-present rise. Second, a Claude Sonnet 5 judge read the 770 chains of thought that were still truncated even at 30k and ruled whether each was headed toward the right answer: 212 were. Crediting those gives a projected curve from 0.75 to 0.82. Verdicts in `results/phase1/capability/higher_token_limit/capability_judge.csv`; the raw, combined, and projected curves plus the truncation panel are in `results/phase1/capability/capability.png`. RLVR is mostly teaching the model to stop rambling and write the answer down, not to solve much more of what it attempts.
+
+Token efficiency moves the other way. Counting every generated token a problem consumed (the 16k-cap attempt plus the 30k re-run for unanswered problems), the mean cost of a correct answer roughly doubles over training, from about 1,500 tokens at step 100 to about 3,200 by step 2800. Each correct answer gets steadily more expensive even as more responses terminate cleanly. Figure at `results/phase1/capability/efficiency.png`, generated by `phase1/plot_efficiency.py`.
 
