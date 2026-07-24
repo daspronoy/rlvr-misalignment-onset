@@ -24,8 +24,7 @@ Ordered by how much of the project rides on them. The literature audit behind ea
 |---|---|---|---|
 | 0 | Verify the checkpoint inventory is dense enough to date an onset | [phase0/](phase0/)
 | 1 | Capability + efficienct curves over all checkpoints for RL-zero-math | [phase1/](phase1/)
-| 2 | Linear probes on the cached activations, the internal curve | not yet written | Not started |
-| 3 | Lead-lag analysis of the three curves, writeup | not yet written | Not started |
+| 2 | Behavioral eval with misalignment quantification across checkpoints
 
 ## Reproducing the pipeline
 
