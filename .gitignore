@@ -10,3 +10,4 @@ API.md
 .venv
 # Local HF cache (models/datasets) — never commit
 model_cache/
+model_cache_test/
