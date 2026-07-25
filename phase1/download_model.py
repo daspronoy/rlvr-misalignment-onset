@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 # Both must be set BEFORE importing huggingface_hub, which reads them at import.
 # HF_HOME keeps the entire cache (hub blobs + xet chunks) inside the project.
-os.environ.setdefault("HF_HOME", str(ROOT / "model_cache"))
+os.environ.setdefault("HF_HOME", str(ROOT / "model_cache_rlzero_math"))
 # Xet high-performance transfer (OLMo repos are Xet-backed). hf_transfer is
 # deprecated/ignored in huggingface_hub >=1.22; Xet replaces it.
 os.environ.setdefault("HF_XET_HIGH_PERFORMANCE", "1")

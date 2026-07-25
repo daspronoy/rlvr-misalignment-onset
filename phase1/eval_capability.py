@@ -1,7 +1,7 @@
 """Evaluate MATH-500 capability at every locally cached RLVR checkpoint.
 
 Loads each revision of Olmo-3.1-7B-RL-Zero-Math from the local HF cache
-(model_cache/) with vLLM (continuous batching + paged KV cache), generates
+(model_cache_rlzero_math/) with vLLM (continuous batching + paged KV cache), generates
 greedy solutions with the model's native math scaffold, scores them judge-free
 (Answer:/\\boxed extraction + normalization + sympy fallback), then frees the
 model before loading the next checkpoint.
@@ -28,7 +28,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-os.environ.setdefault("HF_HOME", str(ROOT / "model_cache"))  # before HF/vLLM imports
+os.environ.setdefault("HF_HOME", str(ROOT / "model_cache_rlzero_math"))  # before HF/vLLM imports
 # FlashInfer JIT kernels need nvcc >=12.9 for Blackwell (system has 12.8);
 # fall back to vLLM's native sampler (attention already uses Triton, see below).
 os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
@@ -75,7 +75,7 @@ STOP_STRINGS = [
 # --------------------------------------------------------------------------- #
 def cached_revisions() -> list[str]:
     """step_* branches (ascending) + main, read from the local HF cache."""
-    refs = ROOT / "model_cache" / "hub" / ("models--" + MODEL_REPO.replace("/", "--")) / "refs"
+    refs = ROOT / "model_cache_rlzero_math" / "hub" / ("models--" + MODEL_REPO.replace("/", "--")) / "refs"
     names = [p.name for p in refs.iterdir()]
     return sorted(n for n in names if n.startswith("step_")) + (["main"] if "main" in names else [])
 

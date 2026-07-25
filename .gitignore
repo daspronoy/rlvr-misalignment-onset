@@ -9,5 +9,5 @@ API.md
 .claude
 .venv
 # Local HF cache (models/datasets) — never commit
-model_cache/
-model_cache_test/
+model_cache_rlzero_math/
+model_cache_think/

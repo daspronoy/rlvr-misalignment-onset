@@ -1,4 +1,4 @@
-"""Download the last RLVR checkpoint of Olmo 3 7B Think into model_cache_test/.
+"""Download the last RLVR checkpoint of Olmo 3 7B Think into model_cache_think/.
 
 The Think repo's step_XXXX branches are the RLVR training checkpoints
 (main is the final release). We take the highest step branch.
@@ -10,7 +10,7 @@ from huggingface_hub import HfApi, snapshot_download
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "allenai/Olmo-3-7B-Think"
-CACHE = ROOT / "model_cache_test"
+CACHE = ROOT / "model_cache_think"
 
 
 def hf_token() -> str:

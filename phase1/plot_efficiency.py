@@ -25,7 +25,7 @@ import pandas as pd
 from plot_capability import CAP, HTL, style
 
 ROOT = Path(__file__).resolve().parent.parent
-os.environ.setdefault("HF_HOME", str(ROOT / "model_cache"))
+os.environ.setdefault("HF_HOME", str(ROOT / "model_cache_rlzero_math"))
 
 
 def load() -> pd.DataFrame:
