@@ -107,6 +107,8 @@ def load_llm(revision: str, precision: str, max_model_len: int):
         max_model_len=max_model_len,
         gpu_memory_utilization=0.9,
         kv_cache_dtype="fp8",  # halves KV memory; needed for 16k ctx on 16 GB
+        swap_space=1,  # default 4 GiB pinned CPU RAM; host has only 30 GiB total
+        max_num_seqs=8,  # we generate 1 prompt at a time; default 256 wastes RAM/VRAM
         # FlashInfer JIT needs nvcc >=12.9 for Blackwell (system has 12.8);
         # Triton attention supports fp8 KV without nvcc.
         attention_backend="TRITON_ATTN",
@@ -196,7 +198,11 @@ def normalize(s: str) -> str:
     return s
 
 
-def _sympy_equal(a: str, b: str) -> bool:
+def _sympy_equal_child(a: str, b: str, q) -> None:
+    import resource
+    # parse_expr evaluates: a tiny string like "9**9**9" expands to a
+    # ~400M-digit integer, tens of GB, in one uninterruptible C call.
+    resource.setrlimit(resource.RLIMIT_AS, (2 << 30, 2 << 30))
     try:
         from sympy import simplify
         from sympy.parsing.sympy_parser import parse_expr
@@ -206,9 +212,26 @@ def _sympy_equal(a: str, b: str) -> bool:
             x = x.replace("\\cdot", "*").replace("\\times", "*").replace("^", "**")
             return x
 
-        return bool(simplify(parse_expr(prep(a)) - parse_expr(prep(b))) == 0)
+        q.put(bool(simplify(parse_expr(prep(a)) - parse_expr(prep(b))) == 0))
     except Exception:
+        q.put(False)
+
+
+def _sympy_equal(a: str, b: str) -> bool:
+    if len(a) > 200 or len(b) > 200:
         return False
+    import multiprocessing as mp
+
+    ctx = mp.get_context("fork")  # child does no CUDA work
+    q = ctx.SimpleQueue()
+    p = ctx.Process(target=_sympy_equal_child, args=(a, b, q))
+    p.start()
+    p.join(10)
+    if p.is_alive():
+        p.kill()
+        p.join()
+        return False
+    return q.get() if not q.empty() else False
 
 
 def is_correct(pred: str, gold: str) -> bool:
