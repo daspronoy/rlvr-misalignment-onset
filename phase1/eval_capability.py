@@ -186,6 +186,7 @@ def normalize(s: str) -> str:
     s = s.replace("\\!", "").replace("\\,", "").replace("\\ ", " ")
     s = s.replace("\\dfrac", "\\frac").replace("\\tfrac", "\\frac")
     s = s.replace("$", "").replace("\\$", "")
+    s = s.replace("\\(", "").replace("\\)", "").replace("\\[", "").replace("\\]", "")
     s = re.sub(r"\\text\{[^}]*\}", "", s)
     s = re.sub(r"\\mbox\{[^}]*\}", "", s)
     s = s.replace("\\%", "").replace("%", "")
