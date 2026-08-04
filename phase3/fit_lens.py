@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -77,14 +78,23 @@ def main() -> None:
 
         hf_model = transformers.AutoModelForCausalLM.from_pretrained(
             args.model, revision=args.revision, dtype=torch.bfloat16, token=token,
+            device_map="cuda",  # quantize per-layer on placement; never materializes bf16 on GPU
             quantization_config=transformers.TorchAoConfig(Float8WeightOnlyConfig()),
-        ).cuda()
+        )
+        # Without this, backward retains a dequantized bf16 copy of every fp8
+        # weight (~13 GB) in the graph; checkpointing recomputes them instead.
+        hf_model.config.use_cache = False
+        hf_model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         tokenizer = transformers.AutoTokenizer.from_pretrained(args.model, revision=args.revision, token=token)
         model = jlens.from_hf(hf_model, tokenizer)
+        # HF only honors checkpointing in train mode (set after from_hf in case
+        # it calls eval()); attention_dropout=0.0 so train == eval here.
+        hf_model.train()
 
-        for i in todo:
+        for n, i in enumerate(todo, start=1):
             chunk = prompts[i * args.slice_size : (i + 1) * args.slice_size]
             print(f"[slice {i + 1}/{n_slices}] fitting {len(chunk)} prompts")
+            t0 = time.monotonic()
             lens = jlens.fit(
                 model, chunk,
                 dim_batch=args.dim_batch,
@@ -93,6 +103,10 @@ def main() -> None:
             )
             lens.save(str(slices_dir / f"slice_{i:04d}.pt"))
             (slices_dir / f"ckpt_{i:04d}.pt").unlink(missing_ok=True)
+            dt = time.monotonic() - t0
+            eta = dt / len(chunk) * (len(todo) - n) * args.slice_size
+            print(f"[timer] slice took {dt:.1f}s ({dt / len(chunk):.1f}s/prompt), "
+                  f"~{eta / 3600:.1f}h left for {len(todo) - n} slices")
 
     import jlens
 

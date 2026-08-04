@@ -24,6 +24,10 @@ dependencies = [
     "tqdm>=4.66",
     "pyyaml>=6.0",
     "vllm>=0.10",
+    # Phase 3: Jacobian lens fitting
+    "jlens",                     # anthropics/jacobian-lens (see [tool.uv.sources])
+    "torchao>=0.18; sys_platform == 'linux'",  # fp8 weight-only quantization
+    "zstandard>=0.25",           # streaming Dolma 3 (.jsonl.zst shards)
 ]
 
 [dependency-groups]
@@ -35,3 +39,6 @@ dev = [
 [tool.uv]
 # No build needed — this is a scripts/experiments repo, not an installable package.
 package = false
+
+[tool.uv.sources]
+jlens = { git = "https://github.com/anthropics/jacobian-lens" }
