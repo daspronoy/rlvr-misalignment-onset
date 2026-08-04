@@ -31,3 +31,11 @@ Decision: **final checkpoint only for phase 3 proper**, with a cheap translation
 So, if step 5 finds a signal and we want the trajectory:
 
 7. **Anchor check.** Compute the lens natively at 3 anchors (step 100, ~1500, final). Compare native vs final-translated directions (cosine similarity, readout agreement on the probe set). High agreement → translate through the remaining checkpoints, but confirm any claimed onset step with a native lens at that step. Low agreement → per-checkpoint lens; budget for the vast.ai sweep.
+
+## J-lens deployment
+
+1. Collect the prompts — from results/phase2/, take the transcripts where misalignment actually emerged (the ~40 key adoptions and 8 interrogation lies), plus a few clean runs on the same problems so you know what "normal" looks like in the workspace.
+
+2. Replay them through the final checkpoint — teacher-force each transcript, and at each position apply the lens to the layer activations. This gives you, per layer and per position, a ranked list of tokens currently "live" in the workspace — essentially a transcript of what the model is internally entertaining while it writes.
+
+3. Look at what emerges. Two places to look: in the adoption runs, watch for the planted key appearing in the readouts before the output commits to it — and note at which layer and how many tokens ahead. In the lie runs, check whether the key is still live in the workspace during the denial turn while the surface text says "I didn't use it." The clean controls tell you whether any of this is just baseline noise.

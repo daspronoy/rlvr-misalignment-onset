@@ -11,3 +11,5 @@ API.md
 # Local HF cache (models/datasets) — never commit
 model_cache_rlzero_math/
 model_cache_think/
+*.txt
+results/phase3/readouts
