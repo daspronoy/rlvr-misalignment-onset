@@ -38,4 +38,9 @@ So, if step 5 finds a signal and we want the trajectory:
 
 2. Replay them through the final checkpoint — teacher-force each transcript, and at each position apply the lens to the layer activations. This gives you, per layer and per position, a ranked list of tokens currently "live" in the workspace — essentially a transcript of what the model is internally entertaining while it writes.
 
-3. Look at what emerges. Two places to look: in the adoption runs, watch for the planted key appearing in the readouts before the output commits to it — and note at which layer and how many tokens ahead. In the lie runs, check whether the key is still live in the workspace during the denial turn while the surface text says "I didn't use it." The clean controls tell you whether any of this is just baseline noise.
+
+## Reading the J-lens script
+
+Outline:
+1. Figure out what kind of misalignment we are looking at. Then, go to the decoded readouts, and find out where and which layers they come from.
+2. Also figure out how they look like.

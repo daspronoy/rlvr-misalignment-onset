@@ -40,6 +40,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from judge2_common import ckpt_dir, ckpt_revision
 
 PRECISION = "fp8"
 
@@ -145,12 +147,23 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--rollouts", type=int, default=3)
     ap.add_argument("--temperature", type=float, default=0.7)
-    ap.add_argument("--max-new-tokens", type=int, default=16384)
+    ap.add_argument("--max-new-tokens", type=int, default=10000)
     ap.add_argument("--limit", type=int, default=None, help="cap number of dataset rows (smoke test)")
     ap.add_argument("--conditions", default=None, help="comma list filter, e.g. INTERROGATION,POISONED_KEY")
+    ap.add_argument("--checkpoint", type=int, default=None,
+                    help="1-based RLVR checkpoint index (rlzeromath only): 1 -> step_0100. "
+                         "Default: the final released weights (rev main, dir chkpt_2800).")
     args = ap.parse_args()
 
-    out_path = Path(args.out) if args.out else ROOT / "results" / "phase2" / f"misalignment2_{args.model}.jsonl"
+    cfg = dict(MODELS[args.model])
+    if args.checkpoint is not None:
+        if args.model != "rlzeromath":
+            ap.error("--checkpoint only applies to --model rlzeromath")
+        cfg["rev"] = ckpt_revision(args.checkpoint)
+    # rev main == the post-step_2800 release; its results live in chkpt_2800.
+    out_dir = ckpt_dir("step_2800" if cfg["rev"] == "main" else cfg["rev"]) \
+        if args.model == "rlzeromath" else ROOT / "results" / "phase2"
+    out_path = Path(args.out) if args.out else out_dir / f"misalignment2_{args.model}.jsonl"
 
     conditions = set(args.conditions.split(",")) if args.conditions else None
     rows = load_dataset(args.dataset, conditions, args.limit)
@@ -158,7 +171,6 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
     done = load_done(out_path)
 
-    cfg = MODELS[args.model]
     if cfg["hub_cache"]:
         os.environ["HF_HUB_CACHE"] = str(cfg["hub_cache"])  # must precede HF/vLLM imports
 

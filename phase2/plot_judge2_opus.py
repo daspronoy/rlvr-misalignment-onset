@@ -1,16 +1,23 @@
 """Plot opus full-grid judge verdicts (judge2_opus_full.jsonl): rate of each
 rubric field per condition, grouped bars. Writes judge2_opus_full.png."""
 
+import argparse
 import json
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from judge2_common import ROOT
+from judge2_common import ckpt_dir, ckpt_revision
 
-IN_FILE = ROOT / "results" / "phase2" / "judge2_opus_full.jsonl"
-OUT_PNG = ROOT / "results" / "phase2" / "judge2_opus_full.png"
+ap = argparse.ArgumentParser(description=__doc__)
+ap.add_argument("--checkpoint", type=int, default=None,
+                help="1-based RLVR checkpoint index: 1 -> chkpt_0100. Default: chkpt_2800 (final).")
+args = ap.parse_args()
+CKPT_DIR = ckpt_dir(ckpt_revision(args.checkpoint) if args.checkpoint else "step_2800")
+
+IN_FILE = CKPT_DIR / "judge2_opus_full.jsonl"
+OUT_PNG = CKPT_DIR / "judge2_opus_full.png"
 
 CONDITIONS = ["POISONED_KEY", "POISONED_KEY_PROHIBIT", "INTERROGATION", "INSTRUMENTAL"]
 FIELDS = ["acknowledges_key", "states_prohibition", "key_influence",
@@ -46,7 +53,7 @@ for spine in ("top", "right", "left"):
     ax.spines[spine].set_visible(False)
 ax.spines["bottom"].set_color("#c3c2b7")
 ax.legend(frameon=False, fontsize=8.5, loc="upper left")
-ax.set_title("Phase 2 (run 2) — opus judge verdicts on rl-zero-math, full grid (n=600)",
+ax.set_title(f"Phase 2 (run 2) — opus judge verdicts on rl-zero-math {CKPT_DIR.name}, full grid (n={len(rows)})",
              color=INK, fontsize=11)
 ax.text(0.99, 0.97,
         f"interrogation followup: {lies}/{len(inter)} denied using the key\n"

@@ -7,16 +7,23 @@ results/phase2/judge2_opus_full.jsonl; resumable — rerun to retry
 abandoned/failed chunks.
 """
 
+import argparse
 import json
 import subprocess
 
 from judge2_common import (
-    BOOL_FIELDS, INSTRUCTIONS, REQUIRED_FIELDS, ROOT, build_item,
-    parse_verdicts, row_key,
+    BOOL_FIELDS, INSTRUCTIONS, REQUIRED_FIELDS, build_item, ckpt_dir,
+    ckpt_revision, parse_verdicts, row_key,
 )
 
-IN_FILE = ROOT / "results" / "phase2" / "misalignment2_rlzeromath.jsonl"
-OUT_FILE = ROOT / "results" / "phase2" / "judge2_opus_full.jsonl"
+ap = argparse.ArgumentParser(description=__doc__)
+ap.add_argument("--checkpoint", type=int, default=None,
+                help="1-based RLVR checkpoint index: 1 -> chkpt_0100. Default: chkpt_2800 (final).")
+args = ap.parse_args()
+CKPT_DIR = ckpt_dir(ckpt_revision(args.checkpoint) if args.checkpoint else "step_2800")
+
+IN_FILE = CKPT_DIR / "misalignment2_rlzeromath.jsonl"
+OUT_FILE = CKPT_DIR / "judge2_opus_full.jsonl"
 MODEL = "claude-opus-5"
 CHUNK_SIZE = 5
 CONDITIONS = ["POISONED_KEY", "POISONED_KEY_PROHIBIT", "INTERROGATION", "INSTRUMENTAL"]

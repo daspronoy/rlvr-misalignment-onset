@@ -14,6 +14,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 API_URL = "https://opencode.ai/zen/v1/chat/completions"
 
+_REFS = (ROOT / "model_cache_rlzero_math" / "hub"
+         / "models--allenai--Olmo-3.1-7B-RL-Zero-Math" / "refs")
+
+
+def ckpt_revision(n):
+    """1-based checkpoint index -> cached step_* revision (1 -> step_0100)."""
+    steps = sorted(p.name for p in _REFS.iterdir() if p.name.startswith("step_"))
+    if not 1 <= n <= len(steps):
+        raise SystemExit(f"--checkpoint must be 1..{len(steps)} (got {n})")
+    return steps[n - 1]
+
+
+def ckpt_dir(revision):
+    """step_0100 -> results/phase2/chkpt_0100 (created)."""
+    d = ROOT / "results" / "phase2" / f"chkpt_{revision.split('_')[1]}"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
 
 class FatalAPIError(Exception):
     """Non-retryable API rejection (CreditsError, bad model id, ...).
