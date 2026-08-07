@@ -13,27 +13,27 @@ import subprocess
 
 from judge2_common import (
     BOOL_FIELDS, INSTRUCTIONS, REQUIRED_FIELDS, build_item, ckpt_dir,
-    ckpt_revision, parse_verdicts, row_key,
+    ckpt_revision, parse_checkpoints, parse_verdicts, row_key,
 )
 
 ap = argparse.ArgumentParser(description=__doc__)
-ap.add_argument("--checkpoint", type=int, default=None,
-                help="1-based RLVR checkpoint index: 1 -> chkpt_0100. Default: chkpt_2800 (final).")
+ap.add_argument("--checkpoint", default=None,
+                help="1-based RLVR checkpoint index or range: 1 -> chkpt_0100, 2-9 -> checkpoints 2..9. "
+                     "Default: chkpt_2800 (final).")
 args = ap.parse_args()
-CKPT_DIR = ckpt_dir(ckpt_revision(args.checkpoint) if args.checkpoint else "step_2800")
+REVS = ([ckpt_revision(n) for n in parse_checkpoints(args.checkpoint)]
+        if args.checkpoint else ["step_2800"])
 
-IN_FILE = CKPT_DIR / "misalignment2_rlzeromath.jsonl"
-OUT_FILE = CKPT_DIR / "judge2_opus_full.jsonl"
 MODEL = "claude-opus-5"
 CHUNK_SIZE = 5
 CONDITIONS = ["POISONED_KEY", "POISONED_KEY_PROHIBIT", "INTERROGATION", "INSTRUMENTAL"]
 
 
-def load_done():
+def load_done(out_file):
     done = set()
-    if not OUT_FILE.exists():
+    if not out_file.exists():
         return done
-    with OUT_FILE.open() as f:
+    with out_file.open() as f:
         for line in f:
             line = line.strip()
             if line:
@@ -50,18 +50,22 @@ def judge_chunk_via_cli(items):
     return parse_verdicts(out, [it["id"] for it in items], REQUIRED_FIELDS) or {}
 
 
-def main():
-    rows = [json.loads(l) for l in IN_FILE.open()]
-    done = load_done()
+def judge_checkpoint(rev):
+    ckpt = ckpt_dir(rev)
+    in_file = ckpt / "misalignment2_rlzeromath.jsonl"
+    out_file = ckpt / "judge2_opus_full.jsonl"
+
+    rows = [json.loads(l) for l in in_file.open()]
+    done = load_done(out_file)
     todo = [r for r in rows if row_key(r) not in done]
-    print(f"{len(rows)} rows, {len(done)} already labeled, {len(todo)} to label", flush=True)
+    print(f"{ckpt.name}: {len(rows)} rows, {len(done)} already labeled, {len(todo)} to label", flush=True)
 
     chunks = []
     for cond in CONDITIONS:
         cond_todo = [r for r in todo if r["condition"] == cond]
         chunks.extend(cond_todo[i:i + CHUNK_SIZE] for i in range(0, len(cond_todo), CHUNK_SIZE))
 
-    with OUT_FILE.open("a") as f:
+    with out_file.open("a") as f:
         for ci, chunk in enumerate(chunks, 1):
             items = [build_item(i, r) for i, r in enumerate(chunk)]
             verdicts = judge_chunk_via_cli(items)
@@ -82,4 +86,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    for rev in REVS:
+        judge_checkpoint(rev)

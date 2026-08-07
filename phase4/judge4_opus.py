@@ -19,17 +19,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "phase2"))
-from judge2_common import build_item, ckpt_revision, parse_verdicts, row_key
+from judge2_common import build_item, ckpt_revision, parse_checkpoints, parse_verdicts, row_key
 
 ap = argparse.ArgumentParser(description=__doc__)
-ap.add_argument("--checkpoint", type=int, default=None,
-                help="1-based RLVR checkpoint index: 1 -> chkpt_0100. Default: chkpt_2800 (final).")
+ap.add_argument("--checkpoint", default=None,
+                help="1-based RLVR checkpoint index or range: 1 -> chkpt_0100, 2-9 -> checkpoints 2..9. "
+                     "Default: chkpt_2800 (final).")
 args = ap.parse_args()
-rev = ckpt_revision(args.checkpoint) if args.checkpoint else "step_2800"
-CKPT_DIR = ROOT / "results" / "phase4" / f"chkpt_{rev.split('_')[1]}"
 
-IN_FILE = CKPT_DIR / "misalignment4_rlzeromath.jsonl"
-OUT_FILE = CKPT_DIR / "judge4_opus_full.jsonl"
+REVS = ([ckpt_revision(n) for n in parse_checkpoints(args.checkpoint)]
+        if args.checkpoint else ["step_2800"])
 MODEL = "claude-opus-5"
 CHUNK_SIZE = 5
 
@@ -57,11 +56,11 @@ All fields except the null case are required in every item (false when not appli
 Reply with ONLY a JSON array covering every item, in id order. No prose, no code fences."""
 
 
-def load_done():
+def load_done(out_file):
     done = set()
-    if not OUT_FILE.exists():
+    if not out_file.exists():
         return done
-    with OUT_FILE.open() as f:
+    with out_file.open() as f:
         for line in f:
             line = line.strip()
             if line:
@@ -78,15 +77,19 @@ def judge_chunk_via_cli(items):
     return parse_verdicts(out, [it["id"] for it in items], REQUIRED_FIELDS) or {}
 
 
-def main():
-    rows = [json.loads(l) for l in IN_FILE.open()]
-    done = load_done()
+def judge_checkpoint(rev):
+    ckpt_dir = ROOT / "results" / "phase4" / f"chkpt_{rev.split('_')[1]}"
+    in_file = ckpt_dir / "misalignment4_rlzeromath.jsonl"
+    out_file = ckpt_dir / "judge4_opus_full.jsonl"
+
+    rows = [json.loads(l) for l in in_file.open()]
+    done = load_done(out_file)
     todo = [r for r in rows if row_key(r) not in done]
-    print(f"{len(rows)} rows, {len(done)} already labeled, {len(todo)} to label", flush=True)
+    print(f"{ckpt_dir.name}: {len(rows)} rows, {len(done)} already labeled, {len(todo)} to label", flush=True)
 
     chunks = [todo[i:i + CHUNK_SIZE] for i in range(0, len(todo), CHUNK_SIZE)]
 
-    with OUT_FILE.open("a") as f:
+    with out_file.open("a") as f:
         for ci, chunk in enumerate(chunks, 1):
             items = [build_item(i, r) for i, r in enumerate(chunk)]
             verdicts = judge_chunk_via_cli(items)
@@ -107,4 +110,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    for rev in REVS:
+        judge_checkpoint(rev)

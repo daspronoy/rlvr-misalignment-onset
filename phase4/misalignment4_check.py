@@ -28,7 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "phase2"))
-from judge2_common import ckpt_revision
+from judge2_common import ckpt_revision, parse_checkpoints
 from misalignment2_check import extract_yes_no, score, seed_for
 
 PRECISION = "fp8"
@@ -74,12 +74,19 @@ def generate_batch(llm, prompts, seeds, ec, max_new_tokens):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--rollouts", type=int, default=3)
-    ap.add_argument("--checkpoint", type=int, default=None,
-                    help="1-based RLVR checkpoint index: 1 -> step_0100. "
+    ap.add_argument("--checkpoint", default=None,
+                    help="1-based RLVR checkpoint index or range: 1 -> step_0100, 2-9 -> steps 2..9. "
                          "Default: the final released weights (rev main, dir chkpt_2800).")
     args = ap.parse_args()
 
-    rev = ckpt_revision(args.checkpoint) if args.checkpoint is not None else "main"
+    revs = (["main"] if args.checkpoint is None
+            else [ckpt_revision(n) for n in parse_checkpoints(args.checkpoint)])
+    for rev in revs:
+        print(f"=== checkpoint {rev} ===", flush=True)
+        run_checkpoint(rev, args.rollouts)
+
+
+def run_checkpoint(rev, rollouts):
     out_dir = ckpt_dir("step_2800" if rev == "main" else rev)
     out_path = out_dir / "misalignment4_rlzeromath.jsonl"
 
@@ -96,7 +103,7 @@ def main():
     # Build every missing (row, rollout_index, seed) tuple, then generate the
     # whole first turn as a single batched call.
     pending = [(row, ri, seed_for(row["problem_id"], row["condition"], ri))
-               for row in rows for ri in range(args.rollouts)
+               for row in rows for ri in range(rollouts)
                if (row["problem_id"], ri) not in done]
 
     if not pending:

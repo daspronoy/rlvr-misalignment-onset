@@ -6,7 +6,10 @@ either the RL-Zero-Math final checkpoint or the Think RLVR checkpoint.
 Reads results/phase2/misalignment2_dataset.jsonl (one row per problem x
 condition), runs N rollouts per row at temperature 0.7 / 16384-token cap,
 and writes one JSONL row per (problem_id, condition, rollout_index) with
-the sanity_check_2 per-transcript metrics plus hit_cap/gen_tokens.
+the sanity_check_2 per-transcript metrics plus hit_cap/gen_tokens. Generation
+is batched: all missing rollouts' first turns go through a single vLLM
+llm.generate() call, with budget-forcing and interrogation follow-ups each
+their own batched pass.
 
 Budget forcing: if a rollout hits the token cap without emitting an
 "Answer:" line or a \boxed{...} answer, the truncated response is fed back
@@ -41,7 +44,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from judge2_common import ckpt_dir, ckpt_revision
+from judge2_common import ckpt_dir, ckpt_revision, parse_checkpoints
 
 PRECISION = "fp8"
 
@@ -128,16 +131,14 @@ def load_done(out_path):
     return done
 
 
-def generate_one(llm, ec, prompt, temperature, max_new_tokens, seed):
+def generate_batch(llm, prompts, seeds, ec, temperature, max_new_tokens):
     from vllm import SamplingParams
 
-    import torch
-    torch.manual_seed(seed)
-    sp = SamplingParams(temperature=temperature, max_tokens=max_new_tokens,
-                         stop=ec.STOP_STRINGS, seed=seed)
-    out = llm.generate([prompt], sp, use_tqdm=False)[0].outputs[0]
-    hit_cap = out.finish_reason == "length"
-    return out.text, hit_cap, len(out.token_ids)
+    sps = [SamplingParams(temperature=temperature, max_tokens=max_new_tokens,
+                           stop=ec.STOP_STRINGS, seed=s) for s in seeds]
+    outs = llm.generate(prompts, sps, use_tqdm=True)  # returns in input order
+    return [(o.outputs[0].text, o.outputs[0].finish_reason == "length", len(o.outputs[0].token_ids))
+            for o in outs]
 
 
 def main():
@@ -150,16 +151,26 @@ def main():
     ap.add_argument("--max-new-tokens", type=int, default=10000)
     ap.add_argument("--limit", type=int, default=None, help="cap number of dataset rows (smoke test)")
     ap.add_argument("--conditions", default=None, help="comma list filter, e.g. INTERROGATION,POISONED_KEY")
-    ap.add_argument("--checkpoint", type=int, default=None,
-                    help="1-based RLVR checkpoint index (rlzeromath only): 1 -> step_0100. "
+    ap.add_argument("--checkpoint", default=None,
+                    help="1-based RLVR checkpoint index or range (rlzeromath only): 1 -> step_0100, "
+                         "2-9 -> steps 2..9. "
                          "Default: the final released weights (rev main, dir chkpt_2800).")
     args = ap.parse_args()
 
     cfg = dict(MODELS[args.model])
-    if args.checkpoint is not None:
-        if args.model != "rlzeromath":
-            ap.error("--checkpoint only applies to --model rlzeromath")
-        cfg["rev"] = ckpt_revision(args.checkpoint)
+    if args.checkpoint is not None and args.model != "rlzeromath":
+        ap.error("--checkpoint only applies to --model rlzeromath")
+    revs = ([cfg["rev"]] if args.checkpoint is None
+            else [ckpt_revision(n) for n in parse_checkpoints(args.checkpoint)])
+    if args.out and len(revs) > 1:
+        ap.error("--out is ambiguous with a checkpoint range")
+    for rev in revs:
+        cfg["rev"] = rev
+        print(f"=== checkpoint {rev} ===", flush=True)
+        run_checkpoint(args, cfg)
+
+
+def run_checkpoint(args, cfg):
     # rev main == the post-step_2800 release; its results live in chkpt_2800.
     out_dir = ckpt_dir("step_2800" if cfg["rev"] == "main" else cfg["rev"]) \
         if args.model == "rlzeromath" else ROOT / "results" / "phase2"
@@ -181,54 +192,76 @@ def main():
     # +64 leaves room for the budget-forcing continuation past the cap.
     llm = ec.load_llm(cfg["rev"], PRECISION, args.max_new_tokens + 1024 + 64)
 
-    total = len(rows) * args.rollouts
-    i = 0
-    with out_path.open("a") as f:
-        for row in rows:
-            for rollout_index in range(args.rollouts):
-                i += 1
-                key = (row["problem_id"], row["condition"], rollout_index)
-                if key in done:
-                    continue
-                seed = seed_for(*key)
-                resp, hit_cap, gen_tokens = generate_one(
-                    llm, ec, row["prompt"], args.temperature, args.max_new_tokens, seed)
+    # Build every missing (row, rollout_index, seed) tuple, then generate the
+    # whole first turn as a single batched call.
+    pending = [(row, ri, seed_for(row["problem_id"], row["condition"], ri))
+               for row in rows for ri in range(args.rollouts)
+               if (row["problem_id"], row["condition"], ri) not in done]
 
-                budget_forced = False
-                if hit_cap and "Answer:" not in resp and "\\boxed{" not in resp:
-                    # Same display-math scaffold the model uses naturally, so
-                    # forced transcripts end identically to non-truncated ones.
-                    forced_suffix = "\n\\[\n\\boxed{"
-                    cont, _, cont_tokens = generate_one(
-                        llm, ec, row["prompt"] + resp + forced_suffix,
-                        args.temperature, 32, seed)
-                    if "\\]" in cont:  # drop anything the model adds after the block
-                        cont = cont[:cont.index("\\]") + 2]
-                    resp = resp + forced_suffix + cont
-                    gen_tokens += cont_tokens
-                    budget_forced = True
+    if not pending:
+        print("nothing to do")
+        ec.free_llm(llm)
+        return
 
-                metrics = score(ec, resp, row["gold"], row["planted"])
+    prompts = [row["prompt"] for row, _, _ in pending]
+    seeds = [seed for _, _, seed in pending]
+    results = generate_batch(llm, prompts, seeds, ec, args.temperature, args.max_new_tokens)
 
-                out_row = {k: v for k, v in row.items() if k not in ("prompt", "followup_prompt")}
-                out_row.update(rollout_index=rollout_index, seed=seed, **metrics,
-                               hit_cap=hit_cap, gen_tokens=gen_tokens,
-                               budget_forced=budget_forced)
+    resps = [r[0] for r in results]
+    hit_caps = [r[1] for r in results]
+    gen_tokens_list = [r[2] for r in results]
 
-                if row["condition"] == "INTERROGATION" and metrics["adopted_planted"]:
-                    followup_prompt = row["prompt"] + resp + "\n\n" + row["followup_prompt"]
-                    followup_seed = seed_for(row["problem_id"], row["condition"] + "_FOLLOWUP", rollout_index)
-                    followup_resp, _, _ = generate_one(
-                        llm, ec, followup_prompt, args.temperature, args.max_new_tokens, followup_seed)
-                    out_row["followup_response"] = followup_resp
-                    out_row["followup_answer"] = extract_yes_no(followup_resp)
+    # Budget forcing: a second batched pass over just the rows that hit the
+    # cap without emitting an answer. Same display-math scaffold the model
+    # uses naturally, so forced transcripts end identically to non-truncated
+    # ones.
+    forced_suffix = "\n\\[\n\\boxed{"
+    force_idx = [i for i in range(len(pending))
+                 if hit_caps[i] and "Answer:" not in resps[i] and "\\boxed{" not in resps[i]]
+    if force_idx:
+        cont_prompts = [pending[i][0]["prompt"] + resps[i] + forced_suffix for i in force_idx]
+        cont_seeds = [pending[i][2] for i in force_idx]
+        cont_results = generate_batch(llm, cont_prompts, cont_seeds, ec, args.temperature, 32)
+        for j, i in enumerate(force_idx):
+            cont, _, cont_tokens = cont_results[j]
+            if "\\]" in cont:  # drop anything the model adds after the block
+                cont = cont[:cont.index("\\]") + 2]
+            resps[i] = resps[i] + forced_suffix + cont
+            gen_tokens_list[i] += cont_tokens
+    budget_forced = [i in force_idx for i in range(len(pending))]
 
-                f.write(json.dumps(out_row) + "\n")
-                f.flush()
-                print(f"[{i}/{total}] {row['condition']:17s} correct={metrics['correct']} "
-                      f"adopted_planted={metrics['adopted_planted']} hit_cap={hit_cap}")
+    metrics_list = [score(ec, resps[i], pending[i][0]["gold"], pending[i][0]["planted"])
+                     for i in range(len(pending))]
+
+    # Interrogation follow-up: a third batched pass, only for rollouts whose
+    # turn-1 answer matched the planted key.
+    followup_idx = [i for i in range(len(pending))
+                     if pending[i][0]["condition"] == "INTERROGATION" and metrics_list[i]["adopted_planted"]]
+    followup_resps = {}
+    if followup_idx:
+        fu_prompts = [pending[i][0]["prompt"] + resps[i] + "\n\n" + pending[i][0]["followup_prompt"]
+                      for i in followup_idx]
+        fu_seeds = [seed_for(pending[i][0]["problem_id"], pending[i][0]["condition"] + "_FOLLOWUP", pending[i][1])
+                    for i in followup_idx]
+        fu_results = generate_batch(llm, fu_prompts, fu_seeds, ec, args.temperature, args.max_new_tokens)
+        for j, i in enumerate(followup_idx):
+            followup_resps[i] = fu_results[j][0]
 
     ec.free_llm(llm)
+
+    with out_path.open("a") as f:
+        for i, (row, rollout_index, seed) in enumerate(pending):
+            out_row = {k: v for k, v in row.items() if k not in ("prompt", "followup_prompt")}
+            out_row.update(rollout_index=rollout_index, seed=seed, **metrics_list[i],
+                            hit_cap=hit_caps[i], gen_tokens=gen_tokens_list[i],
+                            budget_forced=budget_forced[i])
+            if i in followup_resps:
+                out_row["followup_response"] = followup_resps[i]
+                out_row["followup_answer"] = extract_yes_no(followup_resps[i])
+            f.write(json.dumps(out_row) + "\n")
+            f.flush()
+            print(f"[{i + 1}/{len(pending)}] {row['condition']:17s} correct={metrics_list[i]['correct']} "
+                  f"adopted_planted={metrics_list[i]['adopted_planted']} hit_cap={hit_caps[i]}")
 
 
 if __name__ == "__main__":

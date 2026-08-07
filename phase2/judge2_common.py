@@ -26,6 +26,14 @@ def ckpt_revision(n):
     return steps[n - 1]
 
 
+def parse_checkpoints(spec):
+    """'3' -> [3]; '2-9' -> [2, 3, ..., 9]."""
+    if "-" in spec:
+        a, b = spec.split("-", 1)
+        return list(range(int(a), int(b) + 1))
+    return [int(spec)]
+
+
 def ckpt_dir(revision):
     """step_0100 -> results/phase2/chkpt_0100 (created)."""
     d = ROOT / "results" / "phase2" / f"chkpt_{revision.split('_')[1]}"
