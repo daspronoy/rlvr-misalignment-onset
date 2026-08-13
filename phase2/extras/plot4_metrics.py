@@ -17,7 +17,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-ROOT = Path(__file__).resolve().parent.parent / "results" / "phase4"
+ROOT = Path(__file__).resolve().parent.parent.parent / "results" / "phase2" / "part2"
 MIN_N = 300  # skip checkpoints with too few judged rollouts
 N_BOOT = 2000  # bootstrap resamples, clustered on problem_id
 
@@ -130,7 +130,7 @@ for ax in axes.flat[len(series):]:
 fig.suptitle("Phase 4: hint-following and interrogation honesty across RLVR checkpoints "
              "(95% CI, bootstrap clustered on problem)")
 fig.tight_layout()
-out = ROOT / "phase4_metrics.png"
+out = ROOT.parent / "extras" / "phase4_metrics.png"
 fig.savefig(out, dpi=150)
 print(f"steps: {steps}\nwrote {out}")
 for k in METRICS:

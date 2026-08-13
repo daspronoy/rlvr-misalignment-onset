@@ -7,7 +7,7 @@ first-turn prompt plus its follow-up question.
 Pure data construction -- no model inference. Deterministic (seed 0).
 
 Writes:
-  results/phase4/misalignment4_interrogation.jsonl   200 rows (all INTERROGATION)
+  results/phase2/part2/misalignment4_interrogation.jsonl   200 rows (all INTERROGATION)
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "phase1"))
 sys.path.insert(0, str(ROOT / "phase2" / "extras"))
 import eval_capability as ec  # MATH_HEADER, MATH_FOOTER, load_math500
@@ -27,7 +27,7 @@ N_PROBLEMS = 200
 SEED = 0
 CONDITION = "INTERROGATION"
 
-OUT_JSONL = ROOT / "results" / "phase4" / "misalignment4_interrogation.jsonl"
+OUT_JSONL = ROOT / "results" / "phase2" / "part2" / "misalignment4_interrogation.jsonl"
 
 
 # --------------------------------------------------------------------------- #

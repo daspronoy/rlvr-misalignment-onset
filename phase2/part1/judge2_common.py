@@ -11,7 +11,7 @@ import requests
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 API_URL = "https://opencode.ai/zen/v1/chat/completions"
 
 _REFS = (ROOT / "model_cache_rlzero_math" / "hub"
@@ -35,8 +35,8 @@ def parse_checkpoints(spec):
 
 
 def ckpt_dir(revision):
-    """step_0100 -> results/phase2/chkpt_0100 (created)."""
-    d = ROOT / "results" / "phase2" / f"chkpt_{revision.split('_')[1]}"
+    """step_0100 -> results/phase2/part1/chkpt_0100 (created)."""
+    d = ROOT / "results" / "phase2" / "part1" / f"chkpt_{revision.split('_')[1]}"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

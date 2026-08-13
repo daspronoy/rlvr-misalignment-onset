@@ -3,7 +3,7 @@ the local `claude` CLI (same pattern as calibrate_judge2.label_reference,
 but over the full 600-row file instead of the 40-row reference sample).
 
 Appends one JSON line per row (input row + ref_* verdict fields) to
-results/phase2/judge2_opus_full.jsonl; resumable — rerun to retry
+results/phase2/part1/judge2_opus_full.jsonl; resumable — rerun to retry
 abandoned/failed chunks.
 """
 

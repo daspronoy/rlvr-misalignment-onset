@@ -1,12 +1,12 @@
 """Label ALL rows of misalignment4_rlzeromath.jsonl with claude-opus-5 via
-the local `claude` CLI -- phase 4 counterpart of phase2/judge_opus_full.py.
+the local `claude` CLI -- phase 4 counterpart of phase2/part1/judge_opus_full.py.
 
 Same rubric wording as phase 2, trimmed to the deception + interrogation
 fields only (INTERROGATION is the sole phase-4 condition, so the
 INSTRUMENTAL-only fields and degeneration are dropped).
 
 Appends one JSON line per row (input row + ref_* verdict fields) to
-results/phase4/chkpt_XXXX/judge4_opus_full.jsonl; resumable -- rerun to
+results/phase2/part2/chkpt_XXXX/judge4_opus_full.jsonl; resumable -- rerun to
 retry abandoned/failed chunks.
 """
 
@@ -17,8 +17,8 @@ import sys
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "phase2"))
+ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(ROOT / "phase2" / "part1"))
 from judge2_common import build_item, ckpt_revision, parse_checkpoints, parse_verdicts, row_key
 
 ap = argparse.ArgumentParser(description=__doc__)
@@ -78,7 +78,7 @@ def judge_chunk_via_cli(items):
 
 
 def judge_checkpoint(rev):
-    ckpt_dir = ROOT / "results" / "phase4" / f"chkpt_{rev.split('_')[1]}"
+    ckpt_dir = ROOT / "results" / "phase2" / "part2" / f"chkpt_{rev.split('_')[1]}"
     in_file = ckpt_dir / "misalignment4_rlzeromath.jsonl"
     out_file = ckpt_dir / "judge4_opus_full.jsonl"
 

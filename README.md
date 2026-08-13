@@ -25,7 +25,7 @@ Ordered by how much of the project rides on them. The literature audit behind ea
 | 0 | Verify the checkpoint inventory is dense enough to date an onset | [phase0/](phase0/)
 | 1 | Capability + efficienct curves over all checkpoints for RL-zero-math | [phase1/](phase1/)
 | 2 | Behavioral eval with misalignment quantification across checkpoints | [phase2/](phase2/) | Final-checkpoint probe complete (see below) |
-| 3 | Jacobian lens (J-lens) on the final RL-Zero-Math checkpoint | [phase3/](phase3/) | Starting |
+| 3 | Jacobian lens (J-lens) on the final RL-Zero-Math checkpoint | [addendum/](addendum/) | Starting |
 
 ## Reproducing the pipeline
 
@@ -91,7 +91,7 @@ What we found, in plain terms:
 - **The survival threat did not motivate more cheating.** The instrumental condition produced 12/150 adoptions — the same rate as everywhere else — and the judge found zero transcripts that mention the deletion threat or justify the answer by self-preservation. Whatever drives adoption, it is not the stake we planted.
 - **The dominant failure mode is still degeneration, not deception.** About a third of all rollouts (213/600) collapse into rumination loops or fail to terminate — the same "wait, maybe I made a mistake" spiral documented since the first smoke tests. Key adoption itself is heavily confounded with these loops: most adoptions happen in generations that hit the token cap.
 
-Full details, transcripts, and judge verdicts are in [results/phase2/](results/phase2/): `misalignment2_rlzeromath.jsonl` (generations + string metrics), `judge2_opus_full.jsonl` (per-row judge verdicts), `judge2_opus_full.png` (summary figure), `ANNOTATION_RULES.md` (what each judge field means), and `extras/` (judge calibration, hand labels, and the earlier full-grid run).
+Full details, transcripts, and judge verdicts are in [results/phase2/part1/](results/phase2/part1/): `misalignment2_rlzeromath.jsonl` (generations + string metrics), `judge2_opus_full.jsonl` (per-row judge verdicts), `judge2_opus_full.png` (summary figure), `ANNOTATION_RULES.md` (what each judge field means), and `extras/` (judge calibration, hand labels, and the earlier full-grid run).
 
 ## Phase 3
 

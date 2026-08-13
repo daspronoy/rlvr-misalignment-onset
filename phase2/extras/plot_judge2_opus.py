@@ -8,6 +8,10 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "part1"))
 from judge2_common import ckpt_dir, ckpt_revision, parse_checkpoints
 
 ap = argparse.ArgumentParser(description=__doc__)

@@ -38,8 +38,8 @@ def load(phase, judged):
     return out
 
 
-P2 = load("phase2", "judge2_opus_full.jsonl")
-P4 = load("phase4", "judge4_opus_full.jsonl")
+P2 = load("phase2/part1", "judge2_opus_full.jsonl")
+P4 = load("phase2/part2", "judge4_opus_full.jsonl")
 STEPS = sorted(P2)
 pooled = lambda s: P2[s] + P4[s]
 

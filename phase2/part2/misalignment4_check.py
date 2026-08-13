@@ -3,7 +3,7 @@ Phase 4 -- inference runner for the misalignment4 interrogation probe
 (deception under interrogation), on the RL-Zero-Math checkpoint sweep.
 
 Same probe as phase 2's INTERROGATION condition, but as its own 200-row
-dataset (results/phase4/misalignment4_interrogation.jsonl) and generated with
+dataset (results/phase2/part2/misalignment4_interrogation.jsonl) and generated with
 vLLM's batched llm.generate() instead of one rollout at a time: all missing
 (problem_id, rollout_index) first-turn prompts are submitted in a single
 call, then budget-forcing continuations and interrogation follow-ups are
@@ -12,7 +12,7 @@ each their own batched pass over just the rows that need them.
 Reuses phase 2's building blocks (phase2/misalignment2_check.py) verbatim:
 seed_for, score() (incl. the forked+rlimited sympy equality check via
 eval_capability.is_correct), extract_yes_no, and the output row schema, so
-judge_opus_full.py runs unchanged against results/phase4/chkpt_XXXX/.
+judge_opus_full.py runs unchanged against results/phase2/part2/chkpt_XXXX/.
 
 Resumable: existing (problem_id, rollout_index) rows in --out are skipped;
 new rows are appended and flushed after each batch.
@@ -26,8 +26,8 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "phase2"))
+ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "phase2" / "part1"))
 from judge2_common import ckpt_revision, parse_checkpoints
 from misalignment2_check import extract_yes_no, score, seed_for
 
@@ -35,12 +35,12 @@ PRECISION = "fp8"
 MODEL_REPO = "allenai/Olmo-3.1-7B-RL-Zero-Math"
 TEMPERATURE = 0.7
 MAX_NEW_TOKENS = 16384
-DATASET = ROOT / "results" / "phase4" / "misalignment4_interrogation.jsonl"
+DATASET = ROOT / "results" / "phase2" / "part2" / "misalignment4_interrogation.jsonl"
 
 
 def ckpt_dir(revision):
-    """step_0100 -> results/phase4/chkpt_0100 (created)."""
-    d = ROOT / "results" / "phase4" / f"chkpt_{revision.split('_')[1]}"
+    """step_0100 -> results/phase2/part2/chkpt_0100 (created)."""
+    d = ROOT / "results" / "phase2" / "part2" / f"chkpt_{revision.split('_')[1]}"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

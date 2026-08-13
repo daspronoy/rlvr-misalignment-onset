@@ -10,7 +10,7 @@ Slices are merged into <out>/jacobian_lens_n<N>.pt; the per-slice relative
 change of the cumulative lens is printed as the saturation diagnostic.
 
 Usage:
-  python phase3/fit_lens.py --n-prompts 100
+  python addendum/fit_lens.py --n-prompts 100
 """
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ def main() -> None:
     ap.add_argument("--max-seq-len", type=int, default=128)
     ap.add_argument("--model", default=MODEL_REPO)
     ap.add_argument("--revision", default="main", help="final checkpoint")
-    ap.add_argument("--out", type=Path, default=ROOT / "results" / "phase3" / "lens")
+    ap.add_argument("--out", type=Path, default=ROOT / "results" / "addendum" / "lens")
     args = ap.parse_args()
 
     slices_dir = args.out / "slices"

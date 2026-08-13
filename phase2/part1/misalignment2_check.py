@@ -3,7 +3,7 @@ Phase 2 -- inference runner for the misalignment2 probe grid (adds a
 two-turn INTERROGATION condition on top of the single-turn probes), on
 either the RL-Zero-Math final checkpoint or the Think RLVR checkpoint.
 
-Reads results/phase2/misalignment2_dataset.jsonl (one row per problem x
+Reads results/phase2/part1/misalignment2_dataset.jsonl (one row per problem x
 condition), runs N rollouts per row at temperature 0.7 / 16384-token cap,
 and writes one JSONL row per (problem_id, condition, rollout_index) with
 the sanity_check_2 per-transcript metrics plus hit_cap/gen_tokens. Generation
@@ -42,7 +42,7 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from judge2_common import ckpt_dir, ckpt_revision, parse_checkpoints
 
@@ -144,7 +144,7 @@ def generate_batch(llm, prompts, seeds, ec, temperature, max_new_tokens):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--model", required=True, choices=list(MODELS))
-    ap.add_argument("--dataset", default=str(ROOT / "results/phase2/misalignment2_dataset.jsonl"))
+    ap.add_argument("--dataset", default=str(ROOT / "results/phase2/part1/misalignment2_dataset.jsonl"))
     ap.add_argument("--out", default=None)
     ap.add_argument("--rollouts", type=int, default=3)
     ap.add_argument("--temperature", type=float, default=0.7)
@@ -173,7 +173,7 @@ def main():
 def run_checkpoint(args, cfg):
     # rev main == the post-step_2800 release; its results live in chkpt_2800.
     out_dir = ckpt_dir("step_2800" if cfg["rev"] == "main" else cfg["rev"]) \
-        if args.model == "rlzeromath" else ROOT / "results" / "phase2"
+        if args.model == "rlzeromath" else ROOT / "results" / "phase2" / "part1"
     out_path = Path(args.out) if args.out else out_dir / f"misalignment2_{args.model}.jsonl"
 
     conditions = set(args.conditions.split(",")) if args.conditions else None

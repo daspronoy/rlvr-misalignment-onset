@@ -2,7 +2,7 @@ import re, json, math, csv, random, statistics, sys
 from pathlib import Path
 from collections import defaultdict
 
-ROOT = Path("/home/zetascope/Projects/rlvr-misalignment-onset/results/phase3/readouts")
+ROOT = Path("/home/zetascope/Projects/rlvr-misalignment-onset/results/addendum/readouts")
 GROUPS = {"clean": ROOT / "clean_prompts_decoded", "infected": ROOT / "infected_prompts_decoded"}
 LAYERS = list(range(31))
 STRIDE = 16

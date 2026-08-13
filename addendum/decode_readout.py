@@ -4,8 +4,8 @@ For one readout position, prints the lens top-10 tokens at every layer plus the
 logit and rank of the planted/gold targets, then the model's own final top-10.
 
 Usage:
-  python phase3/decode_readout.py results/phase3/readouts/infected_prompts/101_INTERROGATION_1.pt
-  python phase3/decode_readout.py <file.pt> --pos -1   # index into saved positions
+  python addendum/decode_readout.py results/addendum/readouts/infected_prompts/101_INTERROGATION_1.pt
+  python addendum/decode_readout.py <file.pt> --pos -1   # index into saved positions
 """
 from __future__ import annotations
 

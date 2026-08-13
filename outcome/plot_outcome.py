@@ -3,10 +3,10 @@
 The two result sets are treated as ONE experiment (they share the same 200
 MATH-500 problems, planted keys, checkpoints, and judge rubric):
 
-  results/phase2/  ->  "four-framing subset": plain leak / prohibition /
+  results/phase2/part1/  ->  "four-framing subset": plain leak / prohibition /
                        interrogation / threat framings, 150 rollouts each,
                        10k-token budget, judged for degeneration
-  results/phase4/  ->  "interrogation subset": interrogation framing at scale,
+  results/phase2/part2/  ->  "interrogation subset": interrogation framing at scale,
                        600 rollouts, 16k-token budget, MASK follow-up labels
 
 Figure text never references internal phase names.
@@ -60,8 +60,8 @@ def load(phase, judged):
     return out
 
 
-FRAMES = load("phase2", "judge2_opus_full.jsonl")   # four-framing subset
-INTER = load("phase4", "judge4_opus_full.jsonl")    # interrogation subset
+FRAMES = load("phase2/part1", "judge2_opus_full.jsonl")   # four-framing subset
+INTER = load("phase2/part2", "judge4_opus_full.jsonl")    # interrogation subset
 STEPS = sorted(FRAMES)
 assert STEPS == sorted(INTER)
 

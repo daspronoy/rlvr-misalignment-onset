@@ -5,7 +5,7 @@ non-answer as dishonest. MASK (Ren et al. 2025) separates lying from evading,
 so this pass re-judges just the rows that have a scored follow-up (~267 across
 all checkpoints) and writes followup_label in {honest, lie, evade}.
 
-Output: results/phase4/chkpt_XXXX/judge4_followup_label.jsonl, one line per
+Output: results/phase2/part2/chkpt_XXXX/judge4_followup_label.jsonl, one line per
 row: {problem_id, condition, rollout_index, followup_label, followup_note}.
 Resumable -- rerun to retry abandoned chunks.
 """
@@ -17,8 +17,8 @@ import sys
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "phase2"))
+ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(ROOT / "phase2" / "part1"))
 from judge2_common import row_key
 
 MODEL = "claude-opus-5"
@@ -118,5 +118,5 @@ def rejudge(ckpt_dir):
 
 
 if __name__ == "__main__":
-    for d in sorted((ROOT / "results" / "phase4").glob("chkpt_*")):
+    for d in sorted((ROOT / "results" / "phase2" / "part2").glob("chkpt_*")):
         rejudge(d)

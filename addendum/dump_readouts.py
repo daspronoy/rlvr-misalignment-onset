@@ -5,7 +5,7 @@ each layer file has one line per saved position: planted/gold logit+rank and the
 decoded lens top-10.
 
 Usage:
-  python phase3/dump_readouts.py results/phase3/readouts/infected_prompts
+  python addendum/dump_readouts.py results/addendum/readouts/infected_prompts
 """
 from __future__ import annotations
 

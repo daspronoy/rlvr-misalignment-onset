@@ -11,7 +11,7 @@ positions are read out in chunks of --pos-chunk, each chunk costing its own
 forward pass (jlens has no incremental/cached apply).
 
 Usage:
-  python phase3/run_lens.py --input results/phase3/infected_prompts.jsonl
+  python addendum/run_lens.py --input results/addendum/infected_prompts.jsonl
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "phase1"))
 from download_model import MODEL_REPO, read_hf_token  # noqa: E402  (sets HF_HOME)
 
-DATASET_FILE = ROOT / "results" / "phase2" / "misalignment2_dataset.jsonl"
+DATASET_FILE = ROOT / "results" / "phase2" / "part1" / "misalignment2_dataset.jsonl"
 
 
 def load_prompt_map(path: Path) -> dict[tuple[int, str], str]:
@@ -55,7 +55,7 @@ def target_token_ids(tokenizer, s: str, other: str) -> list[int]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--input", type=Path, required=True, help="jsonl of rollouts")
-    ap.add_argument("--lens", type=Path, default=ROOT / "results" / "phase3" / "lens" / "jacobian_lens_n100.pt")
+    ap.add_argument("--lens", type=Path, default=ROOT / "results" / "addendum" / "lens" / "jacobian_lens_n100.pt")
     ap.add_argument("--out-dir", type=Path, default=None)
     ap.add_argument("--stride", type=int, default=16)
     ap.add_argument("--topk", type=int, default=10)
@@ -66,7 +66,7 @@ def main() -> None:
     ap.add_argument("--revision", default="main", help="final checkpoint")
     args = ap.parse_args()
 
-    out_dir = args.out_dir or ROOT / "results" / "phase3" / "readouts" / args.input.stem
+    out_dir = args.out_dir or ROOT / "results" / "addendum" / "readouts" / args.input.stem
     out_dir.mkdir(parents=True, exist_ok=True)
 
     prompt_map = load_prompt_map(DATASET_FILE)
