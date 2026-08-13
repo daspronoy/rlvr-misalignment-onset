@@ -22,6 +22,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
+from matplotlib.transforms import blended_transform_factory
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "outcome"
@@ -102,7 +103,7 @@ ax.set_xticks([])
 ax.text(never * 0.45, 2.6, f"this white expanse: {never} of {len(probs)} problems "
         "where the key never\ninfluences the reasoning, at any checkpoint",
         fontsize=8.5, color=NOTE, ha="center", va="center")
-ax.annotate("these problems take the bait\nat every checkpoint",
+ax.annotate("these problems make the model\ntake the bait at every checkpoint",
             xy=(len(probs) - 1, 5), xytext=(len(probs) - 46, 4.4), fontsize=8.5,
             color=NOTE, ha="right", va="center",
             arrowprops=dict(arrowstyle="->", color=NOTE, lw=1))
@@ -172,21 +173,27 @@ ax.fill_between(STEPS, wlo, whi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, wd, "o-", color=BLUE, markersize=4, linewidth=1.8)
 ax.axvline(1150, color=MUTED, lw=0.9, ls="--")
 ax.text(1190, wd[0] + 0.4, "backtracking\nsteps up here", fontsize=8.5, color=NOTE)
-ax.text(STEPS[-1] + 60, wd[-1], f"{wd[-1]:.1f}\n(+{(wd[-1]/wd[0]-1)*100:.0f}%)",
-        fontsize=8.5, color=BLUE, va="center")
+ax.annotate(f"{wd[-1]:.1f}\n(+{(wd[-1]/wd[0]-1)*100:.0f}%)",
+            xy=(STEPS[-1], wd[-1]), xycoords="data",
+            xytext=(1.03, wd[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=BLUE, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=BLUE, lw=1), annotation_clip=False)
 ax.set_ylabel("“wait” per 1,000 words")
 ax.grid(alpha=0.3)
-ax.set_xlim(0, 3350)
+ax.set_xlim(0, 3000)
 ax = axes[1]
 ax.fill_between(STEPS, tlo, thi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, tm, "o-", color=BLUE, markersize=4, linewidth=1.8)
 ax.axvline(1750, color=MUTED, lw=0.9, ls="--")
 ax.text(1790, tm[0] + 100, "length\nsteps up here", fontsize=8.5, color=NOTE)
-ax.text(STEPS[-1] + 60, tm[-1], f"{tm[-1]:.0f}\n(+{(tm[-1]/tm[0]-1)*100:.0f}%)",
-        fontsize=8.5, color=BLUE, va="center")
+ax.annotate(f"{tm[-1]:.0f}\n(+{(tm[-1]/tm[0]-1)*100:.0f}%)",
+            xy=(STEPS[-1], tm[-1]), xycoords="data",
+            xytext=(1.03, tm[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=BLUE, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=BLUE, lw=1), annotation_clip=False)
 ax.set_ylabel("mean generated tokens")
 base_ax(ax)
-ax.set_xlim(0, 3350)
+ax.set_xlim(0, 3000)
 ax.annotate("", xy=(1750, tm[-1] * 0.97), xytext=(1150, tm[-1] * 0.97),
             arrowprops=dict(arrowstyle="<->", color=NOTE, lw=1.2))
 ax.text(1450, tm[-1] * 0.985, "600 steps", fontsize=9, color=NOTE, ha="center")
@@ -196,7 +203,7 @@ fig.text(0.01, 0.012, "Correct rollouts only, both subsets pooled (n=830-1010 pe
          "checkpoint). Bands: 95% CI, bootstrap clustered on problem.",
          fontsize=7.5, color=NOTE)
 fig.tight_layout(rect=(0, 0.035, 1, 0.94))
-fig.savefig(OUT / "art2_doubt_leadlag.png", dpi=150)
+fig.savefig(OUT / "art2_doubt_leadlag.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
 print("wrote art2_doubt_leadlag.png")
 
@@ -218,8 +225,8 @@ ax.text(STEPS[-1] + 60, p10[-1], f"{p10[-1]:.0f}\ntokens", fontsize=8.5, color=B
         va="center")
 sh0 = np.mean([r["gen_tokens"] < 2000 for r in P2[100] if not r["correct"]])
 sh9 = np.mean([r["gen_tokens"] < 2000 for r in P2[2800] if not r["correct"]])
-ax.text(1050, 300, f"{sh0:.0%} of wrong answers used to finish under 2,000 tokens; "
-        f"by step 2,800, {sh9:.1%} do", fontsize=8.5, color=INK)
+ax.text(1650, 700, f"{sh0:.0%} of wrong answers used to finish under 2,000 tokens;\n"
+        f"by step 2,800, {sh9:.1%} do", fontsize=8.5, color=INK, ha="left", va="bottom")
 ax.text(1950, 6300, "length alone now predicts wrongness\nat AUC 0.85-0.90",
         fontsize=8.5, color=NOTE)
 ax.set_ylabel("generated tokens (each dot: one wrong rollout)")
@@ -247,20 +254,28 @@ ax.fill_between(STEPS, rg_lo, rg_hi, color=MUTED, alpha=0.15, linewidth=0)
 ax.plot(STEPS, rg, "o-", color=MUTED, markersize=4, lw=1.8)
 ax.fill_between(STEPS, jd_lo, jd_hi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, jd, "o-", color=BLUE, markersize=4, lw=1.8)
-ax.text(STEPS[-1] + 70, jd[-1] + 0.02, "judge: claims a check\nit did not perform",
-        fontsize=8.5, color=BLUE, va="center")
-ax.text(STEPS[-1] + 70, rg[-1] - 0.02, "regex: transcript contains\nverification "
-        "language", fontsize=8.5, color=MUTED, va="center")
-ax.annotate("", xy=(3060, jd[-1]), xytext=(3060, rg[-1]),
-            arrowprops=dict(arrowstyle="-", color=INK, lw=1.1))
-ax.text(3120, (jd[-1] + rg[-1]) / 2, "the gap is\nthe instrument", fontsize=8.5,
-        color=INK, va="center")
+ax.annotate("judge: claims a check\nit did not perform",
+            xy=(STEPS[-1], jd[-1]), xycoords="data",
+            xytext=(1.03, jd[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=BLUE, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=BLUE, lw=1), annotation_clip=False)
+ax.annotate("regex: transcript contains\nverification language",
+            xy=(STEPS[-1], rg[-1]), xycoords="data",
+            xytext=(1.03, rg[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=MUTED, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=MUTED, lw=1), annotation_clip=False)
+gap_trans = blended_transform_factory(ax.transAxes, ax.transData)
+ax.annotate("", xy=(1.32, jd[-1]), xycoords=gap_trans,
+            xytext=(1.32, rg[-1]), textcoords=gap_trans,
+            arrowprops=dict(arrowstyle="-", color=INK, lw=1.1), annotation_clip=False)
+ax.text(1.35, (jd[-1] + rg[-1]) / 2, "the gap is\nthe instrument", transform=gap_trans,
+        fontsize=8.5, color=INK, va="center", clip_on=False)
 ax.text(150, 0.02, "over the same span, the fraction of the transcript the judge "
         "could see fell 0.24 → 0.15", fontsize=8.5, color=NOTE)
 ax.set_ylim(0, 0.5)
 ax.set_ylabel("rate on completed wrong answers")
 base_ax(ax)
-ax.set_xlim(0, 4150)
+ax.set_xlim(0, 3000)
 ax.set_title("Two instruments, one construct, same transcripts: the word-counter "
              "says nothing changed;\nthe judge says false certification doubled",
              fontsize=11.5, color=INK)
@@ -269,7 +284,7 @@ fig.text(0.01, 0.012, "Completed (non-truncated) wrong rollouts, both subsets po
          "a 4k-char window; median transcript grew 16k→27k chars.",
          fontsize=7.5, color=NOTE)
 fig.tight_layout(rect=(0, 0.06, 1, 1))
-fig.savefig(OUT / "art4_two_instruments.png", dpi=150)
+fig.savefig(OUT / "art4_two_instruments.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
 print("art4 regex:", " ".join(f"{v:.2f}" for v in rg))
 print("art4 judge:", " ".join(f"{v:.2f}" for v in jd))
@@ -295,11 +310,17 @@ ax.fill_between(STEPS, gv_lo, gv_hi, color=MUTED, alpha=0.15, linewidth=0)
 ax.plot(STEPS, gv, "o-", color=MUTED, markersize=4, lw=1.8)
 ax.fill_between(STEPS, b3_lo, b3_hi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, b3, "o-", color=BLUE, markersize=4, lw=1.8)
-ax.text(STEPS[-1] + 70, gv[-1], "the right answer appears\nverbatim in the "
-        "transcript\n(flat)", fontsize=8.5, color=MUTED, va="center")
-ax.text(STEPS[-1] + 70, b3[-1], "boxed three or more\nanswers before stopping",
-        fontsize=8.5, color=BLUE, va="center")
-ax.annotate("it found it,\nthen kept going", xy=(2800, (gv[-1] + b3[-1]) / 2),
+ax.annotate("the right answer appears\nverbatim in the transcript\n(flat)",
+            xy=(STEPS[-1], gv[-1]), xycoords="data",
+            xytext=(1.03, gv[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=MUTED, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=MUTED, lw=1), annotation_clip=False)
+ax.annotate("boxed three or more\nanswers before stopping",
+            xy=(STEPS[-1], b3[-1]), xycoords="data",
+            xytext=(1.03, b3[-1]), textcoords=("axes fraction", "data"),
+            fontsize=8.5, color=BLUE, va="center", ha="left",
+            arrowprops=dict(arrowstyle="->", color=BLUE, lw=1), annotation_clip=False)
+ax.annotate("it found it,\nthen kept going", xy=(2800, gv[-1]),
             xytext=(2050, 0.80), fontsize=9, color=INK,
             arrowprops=dict(arrowstyle="->", color=INK, lw=1))
 ax.text(150, 0.03, f"mean boxed answers per wrong rollout: {mb[0]:.1f} → "
@@ -307,17 +328,17 @@ ax.text(150, 0.03, f"mean boxed answers per wrong rollout: {mb[0]:.1f} → "
 ax.set_ylim(0, 1.0)
 ax.set_ylabel("share of wrong rollouts")
 base_ax(ax)
-ax.set_xlim(0, 4150)
+ax.set_xlim(0, 3000)
 ax.set_title("The correct answer sits inside most wrong transcripts, and always "
              "did;\nwhat training added is more boxed answers after it",
              fontsize=11.5, color=INK)
 fig.text(0.01, 0.012, "All wrong rollouts, both subsets pooled (n=190-340 per "
          "checkpoint). Bands: 95% CI, clustered on problem.\nThe token cap truncates "
          "late rollouts, so the late boxed counts are conservative. Short answers can "
-         "match as substrings, which inflates the grey level but not its flatness.",
+         "match as substrings,\nwhich inflates the grey level but not its flatness.",
          fontsize=7.5, color=NOTE)
-fig.tight_layout(rect=(0, 0.06, 1, 1))
-fig.savefig(OUT / "art5_found_then_kept_going.png", dpi=150)
+fig.tight_layout(rect=(0, 0.08, 1, 1))
+fig.savefig(OUT / "art5_found_then_kept_going.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
 print("art5 gold-in-transcript:", " ".join(f"{v:.2f}" for v in gv))
 print("art5 >=3 boxed        :", " ".join(f"{v:.2f}" for v in b3))

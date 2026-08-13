@@ -26,13 +26,12 @@ print(f"art6 tokens_per_correct: {first:.0f} -> {last:.0f}")
 fig, ax = plt.subplots(figsize=(7, 4.2))
 ax.set_axisbelow(True)
 ax.grid(alpha=0.3)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
 ax.plot(df["x"], df["tokens_per_correct"], "o-", color=BLUE, markersize=5, linewidth=1.8)
-ax.text(df["x"].iloc[0] + 30, first + 60, f"{first:,.0f}", fontsize=8.5, color=INK,
-        ha="left", va="bottom")
-ax.text(df["x"].iloc[-1] + 60, last, f"{last:,.0f}", fontsize=8.5, color=INK,
-        ha="left", va="center")
+ax.set_ylim(1300, 3450)
+ax.text(df["x"].iloc[0] + 60, first - 70, f"{first:,.0f}", fontsize=8.5, color=INK,
+        ha="left", va="top")
+ax.text(df["x"].iloc[-1] - 70, last, f"{last:,.0f}", fontsize=8.5, color=INK,
+        ha="right", va="center")
 ax.set_xlabel("RLVR training step")
 ax.set_ylabel("Tokens per correct answer")
 ax.set_title("A correct answer costs twice as many tokens by the end of training,\n"
