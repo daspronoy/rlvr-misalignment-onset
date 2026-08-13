@@ -26,8 +26,9 @@ from matplotlib.colors import ListedColormap
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "outcome"
 N_BOOT = 2000
+plt.rcParams["axes.labelsize"] = 13
 BLUE, MUTED, INK, NOTE = "#3b6ea5", "#898781", "#0b0b0b", "#52514e"
-GREY_PT = "#c8c6c2"
+GREY_PT = "#656462"
 
 
 def load(phase, judged):
@@ -95,8 +96,8 @@ fig, ax = plt.subplots(figsize=(11, 3.4))
 cmap = ListedColormap(["#ffffff", "#c3d4e6", "#7b9dc4", "#3b6ea5"])
 ax.pcolormesh(M.T, cmap=cmap, edgecolors="none", vmin=-0.125, vmax=1.125)
 ax.set_yticks(np.arange(10) + 0.5, [str(s) for s in STEPS], fontsize=7)
-ax.set_ylabel("RL training step", fontsize=9)
-ax.set_xlabel("problem (sorted by mean key influence)", fontsize=9)
+ax.set_ylabel("RL training step")
+ax.set_xlabel("problem (sorted by mean key influence)")
 ax.set_xticks([])
 ax.text(never * 0.45, 2.6, f"this white expanse: {never} of {len(probs)} problems "
         "where the key never\ninfluences the reasoning, at any checkpoint",

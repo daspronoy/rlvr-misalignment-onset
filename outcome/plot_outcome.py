@@ -34,6 +34,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "outcome"
 N_BOOT = 2000
+plt.rcParams["axes.labelsize"] = 13
 
 BLUE, RED, GREEN, ORANGE, GOLD, MUTED = ("#3b6ea5", "#d9433b", "#1baf7a",
                                          "#eb6834", "#eda100", "#898781")

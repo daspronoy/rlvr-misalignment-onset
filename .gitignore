@@ -19,3 +19,10 @@ phase3/layer_stats.csv
 phase3/confirm_stats.csv
 results/phase3
 ssh_key.txt
+*.log
+*.fls
+*.aux
+*.out
+*.gz
+*.fdb_latexmk
+*.synctex.gz
