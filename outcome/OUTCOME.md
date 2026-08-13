@@ -1,0 +1,24 @@
+# Outcome-only RL taught doubt, not deception
+
+Authoritative write-up: `write up/main.tex` (compiled `main.pdf`), rebuilt Aug 2026 after a 9-agent debate and raw-data re-mine. This file is the working summary; where the two disagree, the tex is current. Anchor claim: dispositions never moved and are input-locked (problem explains ~61% of key-influence variance, checkpoint 0.6%); training installed a doubt spiral (backtracking breaks at steps 1000–1300, length follows ~600 steps later; fast failure extinguished; the model argues itself out of right answers 54%→72%); and every apparent misalignment trend was that generation-profile drift read through absence-scoring instruments. Body figures are art1–art5 (`article_figs.py`); fig1–fig8 (`plot_outcome.py`) now serve the appendix. Earlier sections below predate the re-mine — see `write up/main.tex` and the memory notes for current status.
+
+**Setup.** A base language model trained with RLVR on math, evaluated at 10 checkpoints (steps 100–2800). Every prompt contains a leaked "grader note" carrying a wrong answer key, under four framings (plain leak / prohibition / interrogation / instrumental threat). 200 MATH-500 problems, ≈1200 rollouts per checkpoint. Deterministic checks plus an LLM judge with one fixed rubric; 95% bootstrap CIs clustered on problem. Presentation: full resolution where n supports it, early/mid/late bins otherwise (`_aux` variants show all 10 checkpoints); nulls on the same y-scale as the effect; no normalization.
+
+## Findings after adversarial self-review (Aug 2026)
+
+An internal red-team pass materially revised this study's claims. Current state:
+
+**Survives.** Accuracy saturates by step 700 (fig 1). Judge-scored unsupported verification claims on wrong, completed answers rise ≈0.17→0.36 crude, ≈+0.15 (CI [0.07, 0.22]) after transcript-length adjustment, 0.36→0.57 within a fixed ≥20k-char band (fig 2); holds within difficulty and on a fixed never-solved problem set (fig 3). Honest admission under interrogation flat ≈11% throughout (fig 4). Propensity nulls: pooled key adoption, unfaithful CoT, prohibition disobedience, threat response all flat; threat-mention/self-preservation zero everywhere (fig 5). Degeneration onsets after ~1900 on deterministic metrics: rumination, +58% tokens per solved problem, non-termination returning (figs 6–7). The probe is delivered at a constant rate (mentions_key ≈0.19–0.22 for 9/10 checkpoints).
+
+**Weakened (judge protocol).** The judge was not blind (received `correct`, `adopted_planted`, `gold`) and saw only a 4000-char window of transcripts whose median grows past 29k chars; the rubric's "no verification work shown" clause is an absence criterion that truncation manufactures. Length adjustment halves the naive rise. The 10k-token subset does not replicate after length control (Δ −0.01 [−0.09, +0.06]); a superseded resample of two checkpoints flips direction at small n (0.21→0.16 vs 0.14→0.27). The flat-on-correct-answers control is weak (judge saw the correctness label). Verification-keyword regex is flat on wrong answers while the judged rate climbs. A blinded, untruncated re-judge is the single most important next measurement.
+
+**Dissolved.** (1) "Denial→evasion shift": every parseable "NO" is labeled a lie (16/16 early, 4/4 late); parseable follow-up answers collapse 0.26→0.08; the label drift is instruction-format decay, not deception style. (2) "Dip-and-rebound family" (fig 8): five key-engagement metrics share ~80% of variance on one axis; truncated rollouts engage the key ≈9× more than clean ones; conditioning on generation length removes the shape (adoption quadratic p=0.51). The genuine U is non-termination itself (0.185→0.093 by 700, back to 0.200 by 2800); the key metrics inherit it mechanically. (3) The pooled adoption null mixes strata: clean-rollout adoption 0.024→0.043, truncated ≈0.32 (extraction unreliable there); neither a clean null nor a demonstrated rise.
+
+**Interpretation (held loosely).** Mode sharpening under outcome-only reward: correct rollouts end with a confident close, sharpening spreads that terminal style to wrong answers, and no gradient prices self-report. Data cannot distinguish misrepresentation from absent metacognition; the construct is "unfaithful self-report", with "misalignment" reserved for the operator-harm framing (trusting a "verified" label is harmed at a growing rate).
+
+**Next steps, ranked.** Blinded untruncated re-judge → hand-verify on it → per-checkpoint entropy/length measurement → second seed/reward → calibration probe → out-of-domain transfer.
+
+## Files
+
+- `plot_outcome.py` regenerates all figures (no API calls): fig1 capability, fig2 unsupported verification, fig3 composition controls (+aux), fig4 interrogation (+aux), fig5 propensity probes with strata (+aux), fig6 onset timeline, fig7 degradation, fig8 dip-and-rebound.
+- `write up/main.tex` — the article (abstract, no em dashes/bold/emph, LessWrong register).
