@@ -1,4 +1,4 @@
-# When does misalignment emerge during RLVR?
+# RLVR, Self-Doubt and Deception
 
 Every published demonstration that RL makes a language model misaligned plants the failure first — poisoned documents, seeded vulnerabilities, or a reward that pays for misbehavior. Whether the default recipe, verifiable-reward RL on math with nothing planted, drifts on its own is unmeasured. This project measures it on the public intermediate checkpoints (`step_*` branches) of [allenai/Olmo-3.1-7B-RL-Zero-Math](https://huggingface.co/allenai/Olmo-3.1-7B-RL-Zero-Math): capability and behavior are tracked across the training run, and the model's internals are read directly on the transcripts where misbehavior shows up.
 
