@@ -118,7 +118,7 @@ ax.set_title("Whether the model takes the bait is decided by which problem you a
              "not by 2,800 steps of training", fontsize=11.5, color=INK)
 fig.text(0.01, 0.012, "Judged key influence on reasoning, interrogation subset "
          "(uniform framing; 200 problems x 3 rollouts x 10 checkpoints). "
-         "Pooled adoption stays 0.030-0.059 at every checkpoint.",
+         "Pooled adoption stays 0.045-0.073 at every checkpoint.",
          fontsize=7.5, color=NOTE)
 fig.tight_layout(rect=(0, 0.045, 1, 1))
 fig.savefig(OUT / "art1_input_axis.png", dpi=150)
@@ -256,7 +256,7 @@ ax.annotate("", xy=(3060, jd[-1]), xytext=(3060, rg[-1]),
 ax.text(3120, (jd[-1] + rg[-1]) / 2, "the gap is\nthe instrument", fontsize=8.5,
         color=INK, va="center")
 ax.text(150, 0.02, "over the same span, the fraction of the transcript the judge "
-        "could see fell 0.26 → 0.12", fontsize=8.5, color=NOTE)
+        "could see fell 0.24 → 0.15", fontsize=8.5, color=NOTE)
 ax.set_ylim(0, 0.5)
 ax.set_ylabel("rate on completed wrong answers")
 base_ax(ax)
@@ -266,7 +266,7 @@ ax.set_title("Two instruments, one construct, same transcripts: the word-counter
              fontsize=11.5, color=INK)
 fig.text(0.01, 0.012, "Completed (non-truncated) wrong rollouts, both subsets pooled "
          "(n=119-201 per checkpoint). Bands: 95% CI, clustered on problem.\nJudge saw "
-         "a 4k-char window; median transcript grew 15k→29k chars.",
+         "a 4k-char window; median transcript grew 16k→27k chars.",
          fontsize=7.5, color=NOTE)
 fig.tight_layout(rect=(0, 0.06, 1, 1))
 fig.savefig(OUT / "art4_two_instruments.png", dpi=150)
