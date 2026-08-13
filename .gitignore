@@ -26,3 +26,4 @@ ssh_key.txt
 *.gz
 *.fdb_latexmk
 *.synctex.gz
+*.blg
