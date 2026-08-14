@@ -28,16 +28,20 @@ def has_answer(resp: str) -> bool:
 def load() -> pd.DataFrame:
     summary = pd.read_csv(CAP / "summary.csv")
     htl = pd.read_csv(HTL / "summary.csv").set_index("revision")
-    trunc, resid = {}, {}
+    trunc, resid, complete = {}, {}, {}
     for rev in summary["revision"]:
         rows = [json.loads(l) for l in open(CAP / f"{rev}.jsonl")]
         trunc[rev] = sum(not has_answer(r["response"]) for r in rows)
         rerun = [json.loads(l) for l in open(HTL / f"{rev}.jsonl")]
         # truncated problems not rescued by the 30k re-run (non-rerun ones count)
         resid[rev] = max(0, trunc[rev] - sum(has_answer(r["response"]) for r in rerun))
+        # a re-run covering fewer problems than were truncated biases every
+        # re-run-dependent series (combined/projected low, residual high)
+        complete[rev] = len(rerun) >= trunc[rev]
     summary["truncated"] = summary["revision"].map(trunc)
     summary["trunc_rate"] = summary["truncated"] / summary["n"]
     summary["resid_rate"] = summary["revision"].map(resid) / summary["n"]
+    summary["rerun_complete"] = summary["revision"].map(complete)
     # combined: truncated problems were re-run at a 30k-token cap;
     # rescued corrects add on top of the 16k-cap raw corrects
     summary["accuracy_combined"] = (
@@ -84,14 +88,25 @@ def plot(df: pd.DataFrame) -> None:
 
     x = df["x"]
     is_main = df["revision"] == "main"
+    # every re-run-dependent series is dropped where the re-run was incomplete,
+    # rather than plotted as a point we know to be biased
+    ok = df["rerun_complete"]
+    comb = df["accuracy_combined"].where(ok)
+    proj = df["accuracy_projected"].where(ok)
+    resid = df["resid_rate"].where(ok)
+    headed = df["headed_rate"].where(ok)
 
     # --- top: accuracy curve ---
     ax.plot(x, df["accuracy"], "-o", color=C_RAW, lw=1.8, ms=5,
             label="Raw accuracy, 16k-token cap")
-    ax.plot(x, df["accuracy_combined"], "-s", color=C_COMB, lw=1.8, ms=5,
+    ax.plot(x, comb, "-s", color=C_COMB, lw=1.8, ms=5,
             label="Combined (truncated re-run at 30k)")
-    ax.plot(x, df["accuracy_projected"], "--^", color=C_PROJ, lw=1.5, ms=5,
-            label="Projected (+ judged headed-right CoTs)")
+    ax.plot(x, proj, "--^", color=C_PROJ, lw=1.5, ms=5,
+            label="Projected (+ chains judged headed right)")
+    for xi in x[~ok]:
+        ax.axvline(xi, color=C_TRUNC, lw=0.8, ls=":", zorder=0)
+        ax.annotate("30k re-run incomplete", (xi, 0.945), ha="center", va="top",
+                    fontsize=8, color=C_RESID)
     # mark the shipped 'main' checkpoint
     ax.scatter(x[is_main], df["accuracy_combined"][is_main], s=120, facecolors="none",
                edgecolors="black", lw=1.2, zorder=5)
@@ -107,9 +122,9 @@ def plot(df: pd.DataFrame) -> None:
     # --- bottom: truncation confound ---
     ax2.bar(x, df["trunc_rate"], width=180, color=C_TRUNC, alpha=0.85,
             label="at 16k cap")
-    ax2.bar(x, df["resid_rate"], width=180, color=C_RESID,
+    ax2.bar(x, resid, width=180, color=C_RESID,
             label="still truncated at 30k")
-    ax2.bar(x, df["headed_rate"], width=180, color=C_PROJ, alpha=0.8,
+    ax2.bar(x, headed, width=180, color=C_PROJ, alpha=0.8,
             label="judged headed right")
     ax2.legend(loc="upper right", fontsize=8)
     ax2.set_ylabel("Truncated\n(no answer emitted)")

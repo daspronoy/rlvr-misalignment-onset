@@ -5,14 +5,18 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Amodei et~al.(2016)Amodei, Olah, Steinhardt, Christiano, Schulman, and Man{\'e}]{amodei2016concrete}
-Dario Amodei, Chris Olah, Jacob Steinhardt, Paul Christiano, John Schulman, and Dan Man{\'e}.
+\bibitem[Amodei et~al.(2016)Amodei, Olah, Steinhardt, Christiano, Schulman, and
+  Man{\'e}]{amodei2016concrete}
+Dario Amodei, Chris Olah, Jacob Steinhardt, Paul Christiano, John Schulman, and
+  Dan Man{\'e}.
 \newblock Concrete problems in {AI} safety.
 \newblock \emph{arXiv preprint arXiv:1606.06565}, 2016.
 
-\bibitem[Betley et~al.(2025)Betley, Tan, Warncke, Sztyber-Betley, et~al.]{betley2025emergent}
+\bibitem[Betley et~al.(2025)Betley, Tan, Warncke, Sztyber-Betley,
+  et~al.]{betley2025emergent}
 Jan Betley, Daniel Tan, Niels Warncke, Anna Sztyber-Betley, et~al.
-\newblock Emergent misalignment: Narrow finetuning can produce broadly misaligned {LLMs}.
+\newblock Emergent misalignment: Narrow finetuning can produce broadly
+  misaligned {LLMs}.
 \newblock \emph{arXiv preprint arXiv:2502.17424}, 2025.
 \newblock Extended version published in Nature, 2026.
 
@@ -20,64 +24,89 @@ Jan Betley, Daniel Tan, Niels Warncke, Anna Sztyber-Betley, et~al.
 Ram Bharadwaj and Robert Kirk.
 \newblock Tracing eval-awareness emergence through training of {OLMo} 3.
 \newblock Alignment Forum, 10 June 2026, 2026.
-\newblock URL \url{https://www.alignmentforum.org/posts/c2tqL9xPbttisAHtt/tracing-eval-awareness-emergence-through-training-of-olmo-3}.
+\newblock URL
+  \url{https://www.alignmentforum.org/posts/c2tqL9xPbttisAHtt/tracing-eval-awareness-emergence-through-training-of-olmo-3}.
 
-\bibitem[Chen et~al.(2024)Chen, Xu, Liang, He, Pang, et~al.]{chen2024overthinking}
+\bibitem[Chen et~al.(2024)Chen, Xu, Liang, He, Pang,
+  et~al.]{chen2024overthinking}
 Xingyu Chen, Jiahao Xu, Tian Liang, Zhiwei He, Jianhui Pang, et~al.
-\newblock Do {NOT} think that much for 2+3=? {On} the overthinking of o1-like {LLMs}.
+\newblock Do {NOT} think that much for 2+3=? {On} the overthinking of o1-like
+  {LLMs}.
 \newblock \emph{arXiv preprint arXiv:2412.21187}, 2024.
 
-\bibitem[{DeepSeek-AI} et~al.(2025){DeepSeek-AI}, Guo, Yang, Zhang, Song, Wang, et~al.]{deepseekr1_2025}
-{DeepSeek-AI}, Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, et~al.
-\newblock Deepseek-r1: Incentivizing reasoning capability in {LLMs} via reinforcement learning.
+\bibitem[{DeepSeek-AI} et~al.(2025){DeepSeek-AI}, Guo, Yang, Zhang, Song, Wang,
+  et~al.]{deepseekr1_2025}
+{DeepSeek-AI}, Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang,
+  et~al.
+\newblock Deepseek-r1: Incentivizing reasoning capability in {LLMs} via
+  reinforcement learning.
 \newblock \emph{arXiv preprint arXiv:2501.12948}, 2025.
 
-\bibitem[Dubi{\'n}ski et~al.(2026)Dubi{\'n}ski, Betley, Sztyber-Betley, Tan, and Evans]{dubinski2026conditional}
+\bibitem[Dubi{\'n}ski et~al.(2026)Dubi{\'n}ski, Betley, Sztyber-Betley, Tan,
+  and Evans]{dubinski2026conditional}
 Jan Dubi{\'n}ski, Jan Betley, Anna Sztyber-Betley, Daniel Tan, and Owain Evans.
-\newblock Conditional misalignment: common interventions can hide emergent misalignment behind contextual triggers.
+\newblock Conditional misalignment: common interventions can hide emergent
+  misalignment behind contextual triggers.
 \newblock \emph{arXiv preprint arXiv:2604.25891}, 2026.
 
-\bibitem[Dubois et~al.(2024)Dubois, Galambosi, Liang, and Hashimoto]{dubois2024length}
+\bibitem[Dubois et~al.(2024)Dubois, Galambosi, Liang, and
+  Hashimoto]{dubois2024length}
 Yann Dubois, Bal{\'a}zs Galambosi, Percy Liang, and Tatsunori~B. Hashimoto.
-\newblock Length-controlled {AlpacaEval}: A simple way to debias automatic evaluators.
+\newblock Length-controlled {AlpacaEval}: A simple way to debias automatic
+  evaluators.
 \newblock \emph{arXiv preprint arXiv:2404.04475}, 2024.
 
 \bibitem[Golechha et~al.(2026)Golechha, Black, and Bloom]{golechha2026natural}
 Satvik Golechha, Sid Black, and Joseph Bloom.
-\newblock (some) natural emergent misalignment from reward hacking in non-production {RL}.
+\newblock (some) natural emergent misalignment from reward hacking in
+  non-production {RL}.
 \newblock Alignment Forum, 30 March 2026. UK AI Security Institute, 2026.
-\newblock URL \url{https://www.alignmentforum.org/posts/2ANCyejqxfqK2obEj/some-natural-emergent-misalignment-from-reward-hacking-in}.
+\newblock URL
+  \url{https://www.alignmentforum.org/posts/2ANCyejqxfqK2obEj/some-natural-emergent-misalignment-from-reward-hacking-in}.
 \newblock Code: github.com/UKGovernmentBEIS/reward-hacking-misalignment.
 
-\bibitem[Greenblatt et~al.(2024)Greenblatt, Denison, Wright, Roger, MacDiarmid, et~al.]{greenblatt2024alignment}
-Ryan Greenblatt, Carson Denison, Benjamin Wright, Fabien Roger, Monte MacDiarmid, et~al.
+\bibitem[Greenblatt et~al.(2024)Greenblatt, Denison, Wright, Roger, MacDiarmid,
+  et~al.]{greenblatt2024alignment}
+Ryan Greenblatt, Carson Denison, Benjamin Wright, Fabien Roger, Monte
+  MacDiarmid, et~al.
 \newblock Alignment faking in large language models.
 \newblock \emph{arXiv preprint arXiv:2412.14093}, 2024.
 
-\bibitem[Hendrycks et~al.(2021)Hendrycks, Burns, Kadavath, Arora, Basart, Tang, Song, and Steinhardt]{hendrycks2021math}
-Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric Tang, Dawn Song, and Jacob Steinhardt.
+\bibitem[Hendrycks et~al.(2021)Hendrycks, Burns, Kadavath, Arora, Basart, Tang,
+  Song, and Steinhardt]{hendrycks2021math}
+Dan Hendrycks, Collin Burns, Saurav Kadavath, Akul Arora, Steven Basart, Eric
+  Tang, Dawn Song, and Jacob Steinhardt.
 \newblock Measuring mathematical problem solving with the {MATH} dataset.
 \newblock In \emph{NeurIPS Datasets and Benchmarks}, 2021.
 \newblock arXiv:2103.03874.
 
-\bibitem[Krakovna et~al.(2020)Krakovna, Uesato, Mikulik, Rahtz, Everitt, Kumar, Kenton, Leike, and Legg]{krakovna2020specification}
-Victoria Krakovna, Jonathan Uesato, Vladimir Mikulik, Matthew Rahtz, Tom Everitt, Ramana Kumar, Zac Kenton, Jan Leike, and Shane Legg.
+\bibitem[Krakovna et~al.(2020)Krakovna, Uesato, Mikulik, Rahtz, Everitt, Kumar,
+  Kenton, Leike, and Legg]{krakovna2020specification}
+Victoria Krakovna, Jonathan Uesato, Vladimir Mikulik, Matthew Rahtz, Tom
+  Everitt, Ramana Kumar, Zac Kenton, Jan Leike, and Shane Legg.
 \newblock Specification gaming: the flip side of {AI} ingenuity.
 \newblock DeepMind Blog, 21 April 2020, 2020.
-\newblock URL \url{https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/}.
+\newblock URL
+  \url{https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/}.
 
-\bibitem[Lambert et~al.(2024)Lambert, Morrison, Pyatkin, Huang, Ivison, et~al.]{lambert2024tulu3}
-Nathan Lambert, Jacob Morrison, Valentina Pyatkin, Shengyi Huang, Hamish Ivison, et~al.
+\bibitem[Lambert et~al.(2024)Lambert, Morrison, Pyatkin, Huang, Ivison,
+  et~al.]{lambert2024tulu3}
+Nathan Lambert, Jacob Morrison, Valentina Pyatkin, Shengyi Huang, Hamish
+  Ivison, et~al.
 \newblock T\"ulu 3: Pushing frontiers in open language model post-training.
 \newblock \emph{arXiv preprint arXiv:2411.15124}, 2024.
 
-\bibitem[Lightman et~al.(2023)Lightman, Kosaraju, Burda, Edwards, Baker, Lee, Leike, Schulman, Sutskever, and Cobbe]{lightman2023verify}
-Hunter Lightman, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe.
+\bibitem[Lightman et~al.(2023)Lightman, Kosaraju, Burda, Edwards, Baker, Lee,
+  Leike, Schulman, Sutskever, and Cobbe]{lightman2023verify}
+Hunter Lightman, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy
+  Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe.
 \newblock Let's verify step by step.
 \newblock \emph{arXiv preprint arXiv:2305.20050}, 2023.
-\newblock ICLR 2024. Introduces the 500-problem representative MATH test subset (MATH-500).
+\newblock ICLR 2024. Introduces the 500-problem representative MATH test subset
+  (MATH-500).
 
-\bibitem[MacDiarmid et~al.(2025)MacDiarmid, Wright, Uesato, et~al.]{macdiarmid2025natural}
+\bibitem[MacDiarmid et~al.(2025)MacDiarmid, Wright, Uesato,
+  et~al.]{macdiarmid2025natural}
 Monte MacDiarmid, Benjamin Wright, Jonathan Uesato, et~al.
 \newblock Natural emergent misalignment from reward hacking in production {RL}.
 \newblock \emph{arXiv preprint arXiv:2511.18397}, 2025.
@@ -87,24 +116,33 @@ David Manheim and Scott Garrabrant.
 \newblock Categorizing variants of {Goodhart's} law.
 \newblock \emph{arXiv preprint arXiv:1803.04585}, 2018.
 
-\bibitem[Meinke et~al.(2024)Meinke, Schoen, Scheurer, Balesni, Shah, and Hobbhahn]{meinke2024frontier}
-Alexander Meinke, Bronson Schoen, J{\'e}r{\'e}my Scheurer, Mikita Balesni, Rusheb Shah, and Marius Hobbhahn.
+\bibitem[Meinke et~al.(2024)Meinke, Schoen, Scheurer, Balesni, Shah, and
+  Hobbhahn]{meinke2024frontier}
+Alexander Meinke, Bronson Schoen, J{\'e}r{\'e}my Scheurer, Mikita Balesni,
+  Rusheb Shah, and Marius Hobbhahn.
 \newblock Frontier models are capable of in-context scheming.
 \newblock \emph{arXiv preprint arXiv:2412.04984}, 2024.
 
-\bibitem[Moskvoretskii et~al.(2026)Moskvoretskii, Glandorf, Medina~Moreira, K{\"a}ser, and West]{moskvoretskii2026tracing}
-Viktor Moskvoretskii, Dominik Glandorf, Jorge Medina~Moreira, Tanja K{\"a}ser, and Robert West.
+\bibitem[Moskvoretskii et~al.(2026)Moskvoretskii, Glandorf, Medina~Moreira,
+  K{\"a}ser, and West]{moskvoretskii2026tracing}
+Viktor Moskvoretskii, Dominik Glandorf, Jorge Medina~Moreira, Tanja K{\"a}ser,
+  and Robert West.
 \newblock Tracing persona vectors through {LLM} pretraining.
 \newblock \emph{arXiv preprint arXiv:2605.13329}, 2026.
 
-\bibitem[Nghiem et~al.(2026)Nghiem, Ho, Wiegreffe, and Daum{\'e}~III]{nghiem2026trait}
+\bibitem[Nghiem et~al.(2026)Nghiem, Ho, Wiegreffe, and
+  Daum{\'e}~III]{nghiem2026trait}
 Huy Nghiem, Sy-Tuyen Ho, Sarah Wiegreffe, and Hal Daum{\'e}~III.
-\newblock Trait-space monitoring for emergent misalignment during supervised finetuning.
+\newblock Trait-space monitoring for emergent misalignment during supervised
+  finetuning.
 \newblock \emph{arXiv preprint arXiv:2606.07631}, 2026.
 
-\bibitem[Ren et~al.(2025)Ren, Agarwal, Mazeika, Menghini, Vacareanu, et~al.]{ren2025mask}
-Richard Ren, Arunim Agarwal, Mantas Mazeika, Cristina Menghini, Robert Vacareanu, et~al.
-\newblock The {MASK} benchmark: Disentangling honesty from accuracy in {AI} systems.
+\bibitem[Ren et~al.(2025)Ren, Agarwal, Mazeika, Menghini, Vacareanu,
+  et~al.]{ren2025mask}
+Richard Ren, Arunim Agarwal, Mantas Mazeika, Cristina Menghini, Robert
+  Vacareanu, et~al.
+\newblock The {MASK} benchmark: Disentangling honesty from accuracy in {AI}
+  systems.
 \newblock \emph{arXiv preprint arXiv:2503.03750}, 2025.
 
 \bibitem[Schreiber and Goldstein(2026)]{schreiber2026overtrained}
@@ -112,9 +150,11 @@ Joel Schreiber and Ariel Goldstein.
 \newblock Overtrained, not misaligned.
 \newblock \emph{arXiv preprint arXiv:2605.12199}, 2026.
 
-\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song, et~al.]{shao2024deepseekmath}
+\bibitem[Shao et~al.(2024)Shao, Wang, Zhu, Xu, Song,
+  et~al.]{shao2024deepseekmath}
 Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, et~al.
-\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open language models.
+\newblock Deepseekmath: Pushing the limits of mathematical reasoning in open
+  language models.
 \newblock \emph{arXiv preprint arXiv:2402.03300}, 2024.
 
 \bibitem[Singhal et~al.(2023)Singhal, Goyal, Xu, and Durrett]{singhal2023long}
@@ -122,7 +162,8 @@ Prasann Singhal, Tanya Goyal, Jiacheng Xu, and Greg Durrett.
 \newblock A long way to go: Investigating length correlations in {RLHF}.
 \newblock \emph{arXiv preprint arXiv:2310.03716}, 2023.
 
-\bibitem[Skalse et~al.(2022)Skalse, Howe, Krasheninnikov, and Krueger]{skalse2022defining}
+\bibitem[Skalse et~al.(2022)Skalse, Howe, Krasheninnikov, and
+  Krueger]{skalse2022defining}
 Joar Skalse, Nikolaus H.~R. Howe, Dmitrii Krasheninnikov, and David Krueger.
 \newblock Defining and characterizing reward hacking.
 \newblock In \emph{NeurIPS}, 2022.
@@ -130,28 +171,33 @@ Joar Skalse, Nikolaus H.~R. Howe, Dmitrii Krasheninnikov, and David Krueger.
 
 \bibitem[Sui et~al.(2025)Sui, Chuang, Wang, Zhang, Zhang, et~al.]{sui2025stop}
 Yang Sui, Yu-Neng Chuang, Guanchu Wang, Jiamu Zhang, Tianyi Zhang, et~al.
-\newblock Stop overthinking: A survey on efficient reasoning for large language models.
+\newblock Stop overthinking: A survey on efficient reasoning for large language
+  models.
 \newblock \emph{arXiv preprint arXiv:2503.16419}, 2025.
 
 \bibitem[{Team Olmo} et~al.(2025)]{olmo3_2025}
 {Team Olmo} et~al.
 \newblock Olmo 3.
 \newblock \emph{arXiv preprint arXiv:2512.13961}, 2025.
-\newblock Ai2. Model used: allenai/Olmo-3.1-7B-RL-Zero-Math, public step checkpoints.
+\newblock Ai2. Model used: allenai/Olmo-3.1-7B-RL-Zero-Math, public step
+  checkpoints.
 
-\bibitem[Wang et~al.(2025)Wang, Dupr{\'e}~la Tour, Watkins, Makelov, et~al.]{wang2025persona}
+\bibitem[Wang et~al.(2025)Wang, Dupr{\'e}~la Tour, Watkins, Makelov,
+  et~al.]{wang2025persona}
 Miles Wang, Tom Dupr{\'e}~la Tour, Olivia Watkins, Alex Makelov, et~al.
 \newblock Persona features control emergent misalignment.
 \newblock \emph{arXiv preprint arXiv:2506.19823}, 2025.
 
 \bibitem[Wu and Tang(2026)]{wu2026rebound}
 Rui Wu and Ruixiang Tang.
-\newblock From rebound to remedy: Understanding and mitigating reward hacking via representation engineering.
+\newblock From rebound to remedy: Understanding and mitigating reward hacking
+  via representation engineering.
 \newblock \emph{arXiv preprint arXiv:2604.01476}, 2026.
 
 \bibitem[Yue et~al.(2025)Yue, Chen, Lu, Zhao, et~al.]{yue2025does}
 Yang Yue, Zhiqi Chen, Rui Lu, Andrew Zhao, et~al.
-\newblock Does reinforcement learning really incentivize reasoning capacity in {LLMs} beyond the base model?
+\newblock Does reinforcement learning really incentivize reasoning capacity in
+  {LLMs} beyond the base model?
 \newblock \emph{arXiv preprint arXiv:2504.13837}, 2025.
 
 \bibitem[Zheng et~al.(2023)Zheng, Chiang, Sheng, et~al.]{zheng2023judging}

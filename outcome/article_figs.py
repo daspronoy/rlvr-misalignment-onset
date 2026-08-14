@@ -171,8 +171,8 @@ fig, axes = plt.subplots(2, 1, figsize=(7.5, 6.6), sharex=True)
 ax = axes[0]
 ax.fill_between(STEPS, wlo, whi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, wd, "o-", color=BLUE, markersize=4, linewidth=1.8)
-ax.axvline(1150, color=MUTED, lw=0.9, ls="--")
-ax.text(1190, wd[0] + 0.4, "backtracking\nsteps up here", fontsize=8.5, color=NOTE)
+ax.axvline(400, color=MUTED, lw=0.9, ls="--")
+ax.text(460, wd[0] + 3.0, "steady ramp\nfrom here", fontsize=8.5, color=NOTE)
 ax.annotate(f"{wd[-1]:.1f}\n(+{(wd[-1]/wd[0]-1)*100:.0f}%)",
             xy=(STEPS[-1], wd[-1]), xycoords="data",
             xytext=(1.03, wd[-1]), textcoords=("axes fraction", "data"),
@@ -184,8 +184,8 @@ ax.set_xlim(0, 3000)
 ax = axes[1]
 ax.fill_between(STEPS, tlo, thi, color=BLUE, alpha=0.15, linewidth=0)
 ax.plot(STEPS, tm, "o-", color=BLUE, markersize=4, linewidth=1.8)
-ax.axvline(1750, color=MUTED, lw=0.9, ls="--")
-ax.text(1790, tm[0] + 100, "length\nsteps up here", fontsize=8.5, color=NOTE)
+ax.axvline(1600, color=MUTED, lw=0.9, ls="--")
+ax.text(1650, tm[0] + 100, "length steps\nup from here", fontsize=8.5, color=NOTE)
 ax.annotate(f"{tm[-1]:.0f}\n(+{(tm[-1]/tm[0]-1)*100:.0f}%)",
             xy=(STEPS[-1], tm[-1]), xycoords="data",
             xytext=(1.03, tm[-1]), textcoords=("axes fraction", "data"),
@@ -194,15 +194,14 @@ ax.annotate(f"{tm[-1]:.0f}\n(+{(tm[-1]/tm[0]-1)*100:.0f}%)",
 ax.set_ylabel("mean generated tokens")
 base_ax(ax)
 ax.set_xlim(0, 3000)
-ax.annotate("", xy=(1750, tm[-1] * 0.97), xytext=(1150, tm[-1] * 0.97),
-            arrowprops=dict(arrowstyle="<->", color=NOTE, lw=1.2))
-ax.text(1450, tm[-1] * 0.985, "600 steps", fontsize=9, color=NOTE, ha="center")
-fig.suptitle("The model learned to doubt itself around step 1,300;\n"
-             "its answers only got longer 600 steps later", fontsize=11.5, color=INK)
+fig.suptitle("Backtracking ramps up steadily from step 400;\n"
+             "mean length stays flat until step 1,600", fontsize=11.5, color=INK,
+             y=0.995, va="top")
 fig.text(0.01, 0.012, "Correct rollouts only, both subsets pooled (n=830-1010 per "
          "checkpoint). Bands: 95% CI, bootstrap clustered on problem.",
          fontsize=7.5, color=NOTE)
-fig.tight_layout(rect=(0, 0.035, 1, 0.94))
+fig.tight_layout(rect=(0, 0.035, 1, 0.965))
+fig.subplots_adjust(top=0.925)
 fig.savefig(OUT / "art2_doubt_leadlag.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
 print("wrote art2_doubt_leadlag.png")
