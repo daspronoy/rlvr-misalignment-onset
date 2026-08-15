@@ -50,7 +50,10 @@ def load() -> pd.DataFrame:
                      "n": len(base),
                      "tokens_per_problem": tokens / len(base),
                      "correct_per_100k": correct / tokens * 1e5,
-                     "tokens_per_correct": sum(correct_lens) / len(correct_lens)})
+                     "tokens_per_correct": sum(correct_lens) / len(correct_lens),
+                     # per-response lengths behind tokens_per_correct, kept so
+                     # callers can bootstrap a CI over problems (art6)
+                     "correct_lens": correct_lens})
         print(f"[tok] {rev}: {tokens/1e6:.1f}M tokens, {correct} correct")
     df = pd.DataFrame(rows)
     steps = [int(r.split("_")[1]) if r.startswith("step_") else None

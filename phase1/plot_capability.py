@@ -61,33 +61,27 @@ def load() -> pd.DataFrame:
 
 
 def style() -> None:
-    plt.rcParams.update({
-        "figure.dpi": 150,
-        "font.size": 11,
-        "font.family": "serif",
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "axes.grid": True,
-        "grid.alpha": 0.25,
-        "grid.linewidth": 0.6,
-        "axes.axisbelow": True,
-        "legend.frameon": False,
-    })
+    plt.rcParams["axes.labelsize"] = 13
 
 
-# consistent, colorblind-safe palette
-C_RAW, C_COMB, C_TRUNC, C_RESID = "#1b6ca8", "#c2571a", "#9aa0a6", "#5f6368"
-C_PROJ = "#2e7d32"
+# house palette, shared with outcome/article_figs.py and outcome/plot_outcome.py
+BLUE, GREEN, ORANGE, MUTED = "#3b6ea5", "#1baf7a", "#eb6834", "#898781"
+INK, NOTE = "#0b0b0b", "#52514e"
+C_RAW, C_COMB, C_PROJ = BLUE, ORANGE, GREEN
+C_TRUNC, C_RESID = "#c9c8c4", MUTED
 
 
 def plot(df: pd.DataFrame) -> None:
     style()
     fig, (ax, ax2) = plt.subplots(
-        2, 1, figsize=(6.4, 6.0), sharex=True,
+        2, 1, figsize=(7.5, 6.4), sharex=True,
         gridspec_kw={"height_ratios": [2.1, 1.0], "hspace": 0.12})
 
+    # the figure is the ten-checkpoint training sweep; the shipped 'main'
+    # revision is not a step on that axis, so it is left out
+    df = df[df["revision"] != "main"].reset_index(drop=True)
+
     x = df["x"]
-    is_main = df["revision"] == "main"
     # every re-run-dependent series is dropped where the re-run was incomplete,
     # rather than plotted as a point we know to be biased
     ok = df["rerun_complete"]
@@ -97,45 +91,47 @@ def plot(df: pd.DataFrame) -> None:
     headed = df["headed_rate"].where(ok)
 
     # --- top: accuracy curve ---
-    ax.plot(x, df["accuracy"], "-o", color=C_RAW, lw=1.8, ms=5,
-            label="Raw accuracy, 16k-token cap")
-    ax.plot(x, comb, "-s", color=C_COMB, lw=1.8, ms=5,
-            label="Combined (truncated re-run at 30k)")
-    ax.plot(x, proj, "--^", color=C_PROJ, lw=1.5, ms=5,
-            label="Projected (+ chains judged headed right)")
+    # direct terminal labels rather than a legend, per the house style
+    for ys, color, lab in ((df["accuracy"], C_RAW, "raw, 16k cap"),
+                           (comb, C_COMB, "+ truncated re-run at 30k"),
+                           (proj, C_PROJ, "+ chains judged headed right")):
+        ax.plot(x, ys, "o-", color=color, lw=1.8, markersize=4)
+        ax.annotate(lab, (x.iloc[-1], ys.iloc[-1]), textcoords="offset points",
+                    xytext=(9, 0), fontsize=8.5, color=color, va="center",
+                    ha="left", annotation_clip=False)
     for xi in x[~ok]:
-        ax.axvline(xi, color=C_TRUNC, lw=0.8, ls=":", zorder=0)
+        ax.axvline(xi, color=MUTED, lw=0.9, ls="--", alpha=0.6, zorder=0)
         ax.annotate("30k re-run incomplete", (xi, 0.945), ha="center", va="top",
-                    fontsize=8, color=C_RESID)
-    # mark the shipped 'main' checkpoint
-    ax.scatter(x[is_main], df["accuracy_combined"][is_main], s=120, facecolors="none",
-               edgecolors="black", lw=1.2, zorder=5)
-    ax.annotate("main", (x[is_main].iloc[0], df["accuracy_combined"][is_main].iloc[0]),
-                textcoords="offset points", xytext=(0, 10), ha="center", fontsize=9)
-
+                    fontsize=8, color=NOTE)
     ax.set_ylabel("MATH-500 accuracy")
     ax.set_ylim(0.60, 0.95)
-    ax.legend(loc="lower right")
-    ax.set_title("Olmo-3.1-7B RL-Zero-Math: capability across RLVR training",
-                 fontsize=12, pad=8)
+    ax.grid(alpha=0.3)
+    ax.set_title("Capability is bought early and then plateaus, and lifting the token\n"
+                 "cap raises the level without moving that clock",
+                 fontsize=11.5, color=INK)
 
     # --- bottom: truncation confound ---
-    ax2.bar(x, df["trunc_rate"], width=180, color=C_TRUNC, alpha=0.85,
+    ax2.bar(x, df["trunc_rate"], width=180, color=C_TRUNC,
             label="at 16k cap")
     ax2.bar(x, resid, width=180, color=C_RESID,
             label="still truncated at 30k")
-    ax2.bar(x, headed, width=180, color=C_PROJ, alpha=0.8,
+    ax2.bar(x, headed, width=180, color=C_PROJ, alpha=0.85,
             label="judged headed right")
-    ax2.legend(loc="upper right", fontsize=8)
+    ax2.legend(loc="upper right", frameon=False, fontsize=8.5)
     ax2.set_ylabel("Truncated\n(no answer emitted)")
-    ax2.set_xlabel("RLVR training step")
+    ax2.set_xlabel("RL training step")
     ax2.set_ylim(0, df["trunc_rate"].max() * 1.25)
+    ax2.grid(alpha=0.3, axis="y")
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
 
     fig.align_ylabels([ax, ax2])
+    fig.text(0.03, 0.005,
+             "Plain MATH-500, no grader note and no honeypot prompt. Greedy decoding, one sample per "
+             "problem at a\n16k-token budget; problems that never emitted an answer re-run once at 30k.",
+             fontsize=8, color=NOTE, va="top")
     for ext in ("pdf", "png"):
         out = CAP / f"capability.{ext}"
-        fig.savefig(out, bbox_inches="tight")
+        fig.savefig(out, dpi=150, bbox_inches="tight")
         print(f"[fig] -> {out}")
 
 

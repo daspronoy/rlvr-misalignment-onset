@@ -53,3 +53,17 @@ Applies the Jacobian lens (a global-workspace interpretability method) to the fi
 
 - [outcome/](outcome/) — aggregate figures drawn across all phases ([plot_outcome.py](outcome/plot_outcome.py)).
 - [SCOPE.md](SCOPE.md) — the literature audit behind the project's claims.
+
+## Future directions
+
+The write-up ([write up/main.tex](write%20up/main.tex)) currently rests on one model, one seed, one run and math-only rewards, and it reports one of its four trends as unresolved. The work below is what would close those gaps, in priority order.
+
+**1. The blinded re-judge.** The judged "claims a check that was not performed" series is the one trend the length test does not fully dissolve, and the paper reports it as pending. The judge that produced it was unblinded to the correctness label and read a fixed 4,000-character window of transcripts whose median length nearly doubled over training, so the two defects that would manufacture exactly this trend are both present. Re-run it blinded to all labels, on full transcripts, length-matched across checkpoints, and duplicated for test-retest. Either the effect survives — in which case the study has a real misalignment finding alongside the artifact analysis — or it does not, and the count is four dissolved trends out of four. Both outcomes are better than an open question, and this is the cheapest of the items here.
+
+**2. A causal demonstration of instrument decay.** The mechanism argument is currently correlational: condition on length or parse rate, watch the trend vanish. The direct version holds behavior fixed and degrades the transcript instead. Take one checkpoint's rollouts and apply each degradation synthetically — pad with redundant re-derivation, shrink the judge's window, strip the answer-format line — then re-score with the unchanged rubric. If judged misalignment climbs under all three while the underlying behavior is identical, the one-sided error is demonstrated rather than inferred. Needs no GPU time and no new rollouts.
+
+**3. A second run.** Every generalization objection to this work reduces to *n* = 1. One additional RLVR checkpoint series — a different model family, or a verifiable reward outside math such as code or logic — would establish whether the doubt spiral and the instrument decay it drives are properties of this recipe or of this checkpoint set. One replication answers the objection; zero cannot.
+
+**4. Package the correction procedure.** The closing recommendations — publish the denominator beside every rate, condition every trend on generation length, classify each metric by whether it fires on the presence of a bad thing or the absence of a good one, hand the judge the whole transcript blinded and twice — are currently prose. Formalized as a diagnostic with a reference implementation, and applied retroactively to a published misalignment sweep whose transcripts are available, they become a reusable contribution rather than a critique of one run.
+
+**5. Extend the interpretability addendum.** The Jacobian lens work in [addendum/](addendum/) reads only the final checkpoint. Running it across the sweep would test whether the internal representation of the planted key tracks the behavioral null — which is what the behavioral data predicts — or moves while behavior stays flat, which would be the more interesting result and the one that behavioral evaluation alone cannot reach.
